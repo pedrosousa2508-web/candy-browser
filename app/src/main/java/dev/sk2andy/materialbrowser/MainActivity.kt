@@ -773,6 +773,14 @@ class MainActivity : AppCompatActivity() {
                                 arrayOf("application/zip", "application/octet-stream"),
                             )
                         },
+                        onOpenPasswordCsv = {
+                            if (BuildConfig.BLACK_HOLE_BRANDING) {
+                                startActivity(Intent().setClassName(
+                                    this@MainActivity,
+                                    "dev.sk2andy.materialbrowser.passwords.PasswordCsvActivity",
+                                ))
+                            }
+                        },
                         onShowGestureOnboarding = {
                             initialOnboardingRequired = false
                             releaseNotesVisible = false

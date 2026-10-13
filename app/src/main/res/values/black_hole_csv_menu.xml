@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
+    <string name="black_hole_csv_menu_title">Experimental password CSV</string>
+    <string name="black_hole_csv_menu_summary">Fake accounts only. Import or export readable passwords; this prototype is not a secure vault.</string>
+</resources>

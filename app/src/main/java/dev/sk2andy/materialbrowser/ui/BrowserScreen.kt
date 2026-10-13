@@ -233,6 +233,7 @@ internal fun BrowserScreen(
     onExportGeckoLogs: () -> Unit = {},
     onClearGeckoLogs: () -> Unit = {},
     onImportAppData: () -> Unit = {},
+    onOpenPasswordCsv: () -> Unit = {},
     onShowGestureOnboarding: () -> Unit = {},
     onShowReleaseNotes: () -> Unit = {},
     onManageFirefoxExtensions: (() -> Unit)? = null,
@@ -1882,6 +1883,7 @@ internal fun BrowserScreen(
             onExportGeckoLogs = onExportGeckoLogs,
             onClearGeckoLogs = onClearGeckoLogs,
             onImportAppData = onImportAppData,
+            onOpenPasswordCsv = onOpenPasswordCsv,
             onShowGestureOnboarding = {
                 settingsVisible = false
                 onShowGestureOnboarding()
