@@ -220,6 +220,9 @@ val performanceDiagnostics = providers.gradleProperty("candy.performanceDiagnost
 
 android {
     namespace = "dev.sk2andy.materialbrowser"
+    testBuildType = providers.gradleProperty("candy.androidTestBuildType").orElse("debug").get().also {
+        require(it == "debug" || it == "blackHoleTest") { "Unsupported Android test build type: $it" }
+    }
     compileSdk = 37
     compileSdkMinor = 1
 
@@ -232,6 +235,7 @@ android {
         manifestPlaceholders["appLabel"] = "@string/app_name"
         manifestPlaceholders["networkSecurityConfig"] = "@xml/network_security_config"
         buildConfigField("boolean", "ENABLE_GITHUB_UPDATES", "false")
+        buildConfigField("boolean", "BLACK_HOLE_BRANDING", "false")
         buildConfigField("boolean", "FOSS_DISTRIBUTION", "false")
         buildConfigField("boolean", "SYSTEM_WEBVIEW_ONLY", "false")
         buildConfigField("boolean", "TRUST_USER_CERTIFICATES", "false")
@@ -330,7 +334,8 @@ android {
             signingConfig = signingConfigs.getByName("debug")
             applicationIdSuffix = ".blackholedev"
             versionNameSuffix = "-blackhole-test"
-            manifestPlaceholders["appLabel"] = "Black Hole Dev (TESTE)"
+            manifestPlaceholders["appLabel"] = "@string/app_name"
+            buildConfigField("boolean", "BLACK_HOLE_BRANDING", "true")
             buildConfigField("boolean", "ENABLE_GITHUB_UPDATES", "false")
             matchingFallbacks += listOf("release")
         }
