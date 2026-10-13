@@ -1,7 +1,10 @@
 package dev.sk2andy.materialbrowser.data.passwords
 
 import dev.sk2andy.materialbrowser.data.AppDataArchiveRules
-import org.junit.Assert.*
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNull
+import org.junit.Assert.assertTrue
 import org.junit.Test
 
 class PasswordVaultRulesTest {

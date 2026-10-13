@@ -36,3 +36,11 @@ adb -s "$ANDROID_SERIAL" shell am instrument -w -r \
   | tee "$report_dir/csv-instrumentation.txt"
 python3 scripts/verify_black_hole_instrumentation.py \
   "$report_dir/csv-instrumentation.txt" "$report_dir/TEST-csv.xml" csv
+
+
+adb -s "$ANDROID_SERIAL" shell am instrument -w -r \
+  -e class dev.sk2andy.materialbrowser.passwords.PasswordVaultInstrumentedTest \
+  dev.sk2andy.materialbrowser.blackholedev.test/androidx.test.runner.AndroidJUnitRunner \
+  | tee "$report_dir/vault-instrumentation.txt"
+python3 scripts/verify_black_hole_instrumentation.py \
+  "$report_dir/vault-instrumentation.txt" "$report_dir/TEST-vault.xml" vault

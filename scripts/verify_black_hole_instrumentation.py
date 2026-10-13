@@ -18,6 +18,14 @@ CSV_EXPECTED = {
     "sensitiveScreenIsPrivateSecureAndRecreationDoesNotRestoreCredentials",
 }
 
+VAULT_CLASS = "dev.sk2andy.materialbrowser.passwords.PasswordVaultInstrumentedTest"
+VAULT_EXPECTED = {
+    "nativeCrudSearchSelectionAndStrongDeleteAll",
+    "encryptedPersistenceCorruptionAndUnavailableKeyPreserveData",
+    "authenticationCancellationBackgroundRecreationAndInactivityLock",
+    "vaultCannotCaptureNormalOrPrivateBrowserStateOrChangeCsvPrototype",
+}
+
 
 def completed_tests(text, class_name=CLASS, expected=EXPECTED):
     records = []
@@ -43,7 +51,7 @@ def completed_tests(text, class_name=CLASS, expected=EXPECTED):
 
 
 def main(log, report, profile="branding"):
-    class_name, expected = {"branding": (CLASS, EXPECTED), "csv": (CSV_CLASS, CSV_EXPECTED)}[profile]
+    class_name, expected = {"branding": (CLASS, EXPECTED), "csv": (CSV_CLASS, CSV_EXPECTED), "vault": (VAULT_CLASS, VAULT_EXPECTED)}[profile]
     records = completed_tests(Path(log).read_text(), class_name, expected)
     root = ET.Element("testsuite", name=class_name, tests=str(len(expected)), failures="0", errors="0", skipped="0")
     for class_name, test_name in records:

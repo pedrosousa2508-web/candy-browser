@@ -110,7 +110,7 @@ jobs:
           :app:assembleFullBlackHoleTest :app:assembleFullBlackHoleTestAndroidTest
       - name: Enable KVM for the dedicated emulator
         run: sudo chmod 666 /dev/kvm
-      - name: Test branding and experimental CSV on Android 35
+      - name: Test branding, CSV and native vault on Android 35
         uses: ReactiveCircus/android-emulator-runner@324029e2f414c084d8b15ba075288885e74aef9c # v2.34.0
         env:
           ANDROID_SERIAL: emulator-5554

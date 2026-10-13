@@ -1,5 +1,5 @@
 import unittest
-from verify_black_hole_instrumentation import completed_tests, CSV_CLASS, CSV_EXPECTED
+from verify_black_hole_instrumentation import completed_tests, CSV_CLASS, CSV_EXPECTED, VAULT_CLASS, VAULT_EXPECTED
 
 CLASS = "dev.sk2andy.materialbrowser.data.BlackHoleBrandingInstrumentedTest"
 NAMES = [
@@ -39,10 +39,17 @@ class InstrumentationReportTest(unittest.TestCase):
 
     def test_csv_profile_requires_all_csv_cases_and_correct_class(self):
         text = transcript(sorted(CSV_EXPECTED)).replace(CLASS, CSV_CLASS)
-        self.assertEqual(3, len(completed_tests(text, CSV_CLASS, CSV_EXPECTED)))
+        self.assertEqual(4, len(completed_tests(text, CSV_CLASS, CSV_EXPECTED)))
         for rejected in (text.replace(CSV_CLASS, CLASS), text.replace("INSTRUMENTATION_STATUS_CODE: 0", "INSTRUMENTATION_STATUS_CODE: -2", 1)):
             with self.assertRaises(ValueError):
                 completed_tests(rejected, CSV_CLASS, CSV_EXPECTED)
+
+    def test_vault_profile_rejects_partial_failed_and_wrong_suites(self):
+        text = transcript(sorted(VAULT_EXPECTED)).replace(CLASS, VAULT_CLASS)
+        self.assertEqual(4, len(completed_tests(text, VAULT_CLASS, VAULT_EXPECTED)))
+        for rejected in (transcript(sorted(VAULT_EXPECTED)[:3]).replace(CLASS, VAULT_CLASS), text.replace(VAULT_CLASS, CSV_CLASS)):
+            with self.assertRaises(ValueError):
+                completed_tests(rejected, VAULT_CLASS, VAULT_EXPECTED)
 
 
 if __name__ == "__main__":

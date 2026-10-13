@@ -16,3 +16,11 @@
 # CSV instrumentation calls the parser, authorization and encrypted store across APKs.
 -keep class dev.sk2andy.materialbrowser.data.passwords.** { *; }
 -keep class dev.sk2andy.materialbrowser.data.AppDataArchiveRules { *; }
+
+# Native vault separation test uses its own preference namespace, never production sessions.
+-keep class dev.sk2andy.materialbrowser.data.BrowserSessionStore {
+    <init>(android.content.SharedPreferences);
+    public boolean saveTabsImmediately(java.util.List,java.lang.String);
+    public kotlin.Pair loadTabs(long);
+}
+-keep class dev.sk2andy.materialbrowser.browser.BrowserTab { *; }
