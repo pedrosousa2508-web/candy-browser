@@ -9,6 +9,7 @@ import android.view.WindowManager
 import androidx.test.core.app.ActivityScenario
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
+import androidx.test.uiautomator.Direction
 import androidx.test.uiautomator.By
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.Until
@@ -72,7 +73,9 @@ class PasswordVaultInstrumentedTest {
             firstTag("vault_delete_[a-f0-9]{8}-").click(); click("vault_confirm_delete"); authenticate()
             assertTrue(device.wait(Until.gone(By.text("https://edited.invented.example")), TIMEOUT))
             add("https://gamma.invented.example", "fake-gamma", "invented-third")
-            device.findObjects(By.res(Pattern.compile("vault_select_.*"))).map { it.resourceName }.forEach(::click)
+            val selectionIds = BlackHoleNativeVaultStore(context).summaries().map { "vault_select_${it.id}" }
+            assertEquals(2, selectionIds.size)
+            selectionIds.forEach(::selectWithScroll)
             click("vault_delete_selected"); click("vault_confirm_delete"); authenticate(); waitTag("vault_empty")
             add("https://all.invented.example", "fake-all", "invented-all")
             click("vault_delete_all")
@@ -173,7 +176,9 @@ class PasswordVaultInstrumentedTest {
     private fun add(site: String, user: String, password: String) {
         click("vault_add"); authenticate(); waitTag("vault_site")
         field("vault_site", site); field("vault_username", user); field("vault_password", password)
-        click("vault_save"); authenticate(); waitText(site)
+        click("vault_save"); authenticate()
+        assertTrue(device.wait(Until.hasObject(By.res("vault_add").enabled(true)), TIMEOUT))
+        waitText(site)
     }
     private fun field(tag: String, value: String) {
         val node = requireNotNull(device.wait(Until.findObject(By.res(tag).enabled(true)), TIMEOUT))
@@ -184,6 +189,21 @@ class PasswordVaultInstrumentedTest {
         instrumentation.waitForIdleSync()
         device.waitForIdle(500)
     }
+    private fun selectWithScroll(tag: String) {
+        // The selection banner reduces the lazy viewport; off-screen rows are not accessible.
+        repeat(4) {
+            val control = device.wait(Until.findObject(By.res(tag).enabled(true)), 1_000)
+            if (control != null) {
+                control.click()
+                instrumentation.waitForIdleSync()
+                return
+            }
+            val list = requireNotNull(device.findObject(By.scrollable(true))) { "Credential list must be scrollable" }
+            list.scroll(Direction.DOWN, 0.6f) // False can mean the target is now at the final scroll position.
+        }
+        error("Missing selection control after scrolling")
+    }
+
     private fun click(tag: String) {
         device.waitForIdle(500)
         requireNotNull(device.wait(Until.findObject(By.res(tag).enabled(true)), TIMEOUT)) { "Missing test control $tag" }.click()
