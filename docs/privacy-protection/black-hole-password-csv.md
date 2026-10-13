@@ -76,7 +76,11 @@ The current workflow builds both normal variants and the R8-optimized test APK. 
 job retains the existing three branding cases and adds three CSV cases with independent
 completion checks. The test-only provider exercises real Android Files and document grants
 with invented data. The fresh emulator receives fabricated PIN `246810` to test the actual OS
-device-credential path, including cancellation and successful authorization. Hardware fingerprint
+device-credential path. A test-only activity monitor adds Android's `EXTRA_INITIAL_URI` to
+the outgoing picker intents so they open the invented provider directly; it never supplies
+an activity result or substitutes Android's document grants. This avoids selecting the wrong
+sidebar row while system providers are rediscovered/reordered during emulator boot. The suite
+exercises cancellation and successful authorization. Hardware fingerprint
 authentication still requires a phone test. The script refuses physical-device serials, and
 instrumentation refuses non-emulator hardware or an existing prototype dataset.
 

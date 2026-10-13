@@ -1,8 +1,10 @@
 package dev.sk2andy.materialbrowser.passwords
 
+import android.app.Instrumentation
 import android.content.ComponentName
 import android.content.Context
 import android.content.ContextWrapper
+import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.os.SystemClock
@@ -42,6 +44,7 @@ class PasswordCsvInstrumentedTest {
     private val device = UiDevice.getInstance(instrumentation)
     private val isolated = File(context.noBackupFilesDir, "invented-csv-store-test")
     private var createdProductionFixture = false
+    private var pickerMonitor: Instrumentation.ActivityMonitor? = null
 
     @Before
     fun requireDisposableEmulator() {
@@ -55,6 +58,7 @@ class PasswordCsvInstrumentedTest {
 
     @After
     fun removeInventedFixtures() {
+        pickerMonitor?.let(instrumentation::removeMonitor)
         isolated.deleteRecursively()
         if (createdProductionFixture) {
             for (suffix in listOf("", ".bak", ".new")) {
@@ -108,10 +112,19 @@ class PasswordCsvInstrumentedTest {
     @Test
     fun safImportAndAuthenticatedExportRoundTrip() {
         createdProductionFixture = true
+        pickerMonitor = object : Instrumentation.ActivityMonitor() {
+            override fun onStartActivity(intent: Intent): Instrumentation.ActivityResult? {
+                if (intent.action in setOf(Intent.ACTION_OPEN_DOCUMENT, Intent.ACTION_CREATE_DOCUMENT)) {
+                    intent.putExtra(DocumentsContract.EXTRA_INITIAL_URI,
+                        DocumentsContract.buildRootUri(CsvTestDocumentsProvider.AUTHORITY, "csv-tests"))
+                }
+                return null // Launch the real system picker, never stub its result or URI grants.
+            }
+        }.also(instrumentation::addMonitor)
         ActivityScenario.launch(PasswordCsvActivity::class.java).use {
             clickApp(R.id.csv_import)
             click(By.res("android", "button1"))
-            chooseTestRoot()
+            waitForTestRoot()
             clickText("invented-input.csv")
             waitTextContains("Rows: 5")
             click(By.res("android", "button1"))
@@ -165,16 +178,13 @@ class PasswordCsvInstrumentedTest {
     private fun chooseExportDestination() {
         clickApp(R.id.csv_export)
         click(By.res("android", "button1"))
-        chooseTestRoot()
+        waitForTestRoot()
         // Android 35 DocumentsUI fragment_save.xml uses the framework button1 ID.
         click(By.res("android", "button1"))
     }
 
-    private fun chooseTestRoot() {
-        val roots = device.wait(Until.findObject(By.desc(Pattern.compile("(?i)(Show roots|Open navigation drawer)"))), TIMEOUT)
-        if (roots != null) roots.click()
-        clickText(CsvTestDocumentsProvider.ROOT_TITLE)
-    }
+    private fun waitForTestRoot() = assertTrue("System picker must open the invented document root",
+        device.wait(Until.hasObject(By.text(CsvTestDocumentsProvider.ROOT_TITLE)), TIMEOUT))
 
     private fun waitDeviceCredential(): UiObject2 {
         var pin = device.wait(Until.findObject(PIN_ENTRY), TIMEOUT)
