@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="onboarding_brand_name" translatable="false">Candy</string>
+    <string name="onboarding_demo_url" translatable="false">candy://gestures</string>
+    <string name="black_hole_tagline" translatable="false">Browse Beyond</string>
+    <string name="bh_icon_classic" translatable="false">Classic</string>
+    <string name="bh_icon_neon" translatable="false">Neon</string>
+    <string name="bh_icon_minimal" translatable="false">Minimal</string>
+    <string name="bh_icon_dark" translatable="false">Dark</string>
+    <string name="bh_icon_cosmic" translatable="false">Cosmic</string>
+    <string name="bh_icon_luxury" translatable="false">Luxury</string>
+    <string name="bh_icon_blue" translatable="false">Blue</string>
+    <string name="bh_icon_redshift" translatable="false">Red Shift</string>
+    <string name="bh_icon_solar_flare" translatable="false">Solar Flare</string>
+</resources>

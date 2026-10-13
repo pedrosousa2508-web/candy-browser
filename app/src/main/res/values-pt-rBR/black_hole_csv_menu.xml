@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="black_hole_csv_import_title">Importar senhas (CSV)</string>
+    <string name="black_hole_csv_export_title">Exportar senhas (CSV)</string>
+    <string name="black_hole_csv_menu_summary">Somente contas inventadas. Importar ou exportar senhas legíveis; este protótipo não é um cofre seguro.</string>
+    <string name="black_hole_passwords_title">Senhas</string>
+    <string name="black_hole_passwords_summary">Gerenciador nativo experimental. Somente credenciais inventadas; revisão de segurança pendente.</string>
+</resources>

@@ -220,6 +220,9 @@ val performanceDiagnostics = providers.gradleProperty("candy.performanceDiagnost
 
 android {
     namespace = "dev.sk2andy.materialbrowser"
+    testBuildType = providers.gradleProperty("candy.androidTestBuildType").orElse("debug").get().also {
+        require(it == "debug" || it == "blackHoleTest") { "Unsupported Android test build type: $it" }
+    }
     compileSdk = 37
     compileSdkMinor = 1
 
@@ -232,6 +235,7 @@ android {
         manifestPlaceholders["appLabel"] = "@string/app_name"
         manifestPlaceholders["networkSecurityConfig"] = "@xml/network_security_config"
         buildConfigField("boolean", "ENABLE_GITHUB_UPDATES", "false")
+        buildConfigField("boolean", "BLACK_HOLE_BRANDING", "false")
         buildConfigField("boolean", "FOSS_DISTRIBUTION", "false")
         buildConfigField("boolean", "SYSTEM_WEBVIEW_ONLY", "false")
         buildConfigField("boolean", "TRUST_USER_CERTIFICATES", "false")
@@ -323,6 +327,25 @@ android {
             matchingFallbacks += listOf("release")
         }
 
+        // V4.1 performance baseline, signed only for experimental local testing.
+        create("blackHoleTest") {
+            initWith(getByName("release"))
+            isDebuggable = false
+            signingConfig = signingConfigs.getByName("debug")
+            applicationIdSuffix = ".blackholedev"
+            versionNameSuffix = "-blackhole-test"
+            manifestPlaceholders["appLabel"] = "@string/app_name"
+            buildConfigField("boolean", "BLACK_HOLE_BRANDING", "true")
+            testProguardFiles("black-hole-test-proguard-rules.pro")
+            if (testBuildType == "blackHoleTest") {
+                // The runner uses this shared dependency after the app has been shrunk.
+                // Keep its runtime entry points only for the dedicated instrumented build.
+                proguardFile("black-hole-instrumented-app-proguard-rules.pro")
+            }
+            buildConfigField("boolean", "ENABLE_GITHUB_UPDATES", "false")
+            matchingFallbacks += listOf("release")
+        }
+
         create("playRelease") {
             initWith(getByName("release"))
             buildConfigField("boolean", "ENABLE_GITHUB_UPDATES", "false")
@@ -352,6 +375,13 @@ android {
     }
 
     sourceSets {
+        if (testBuildType == "blackHoleTest") {
+            getByName("androidTest") {
+                java.setSrcDirs(listOf("src/blackHoleAndroidTest/java"))
+                res.setSrcDirs(emptyList<String>())
+                manifest.srcFile("src/blackHoleAndroidTest/AndroidManifest.xml")
+            }
+        }
         getByName("main").assets.srcDir(
             layout.buildDirectory.dir("generated/candySyncIcons/assets").get().asFile,
         )
@@ -397,6 +427,10 @@ android {
 }
 
 androidComponents {
+    beforeVariants(selector().withBuildType("blackHoleTest")) { variant ->
+        variant.enable = variant.productFlavors.toMap()["distribution"] == "full"
+    }
+
     beforeVariants(selector().withBuildType("playRelease")) { variant ->
         variant.enable = variant.productFlavors.toMap()["distribution"] == "full"
     }

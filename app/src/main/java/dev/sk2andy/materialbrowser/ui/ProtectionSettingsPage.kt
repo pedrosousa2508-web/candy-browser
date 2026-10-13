@@ -34,6 +34,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import dev.sk2andy.materialbrowser.R
+import dev.sk2andy.materialbrowser.BuildConfig
 import dev.sk2andy.materialbrowser.shared.ui.settings.settingsSearchTarget
 import dev.sk2andy.materialbrowser.blocking.BlockerSettings
 import dev.sk2andy.materialbrowser.browser.AndroidBrowserEngineKind
@@ -90,6 +91,8 @@ internal fun ProtectionAndDataSettingsPage(
     onFilterStudio: () -> Unit,
     onExportAppData: () -> Unit = {},
     onImportAppData: () -> Unit = {},
+    onOpenPasswordCsv: (String) -> Unit = {},
+    onOpenPasswordVault: () -> Unit = {},
     onClearData: () -> Unit,
     onBack: () -> Unit,
 ) {
@@ -465,6 +468,33 @@ internal fun ProtectionAndDataSettingsPage(
             modifier = Modifier.testTag(ProtectionSettingsTestTags.ImportAppData),
         )
         Spacer(Modifier.height(16.dp))
+        if (BuildConfig.BLACK_HOLE_BRANDING) {
+            DataArchiveAction(
+                title = stringResource(R.string.black_hole_csv_import_title),
+                summary = stringResource(R.string.black_hole_csv_menu_summary),
+                onClick = { onOpenPasswordCsv("blackhole.csv.IMPORT") },
+                modifier = Modifier.testTag("black_hole_password_csv_import"),
+            )
+            Spacer(Modifier.height(8.dp))
+            DataArchiveAction(
+                title = stringResource(R.string.black_hole_csv_export_title),
+                summary = stringResource(R.string.black_hole_csv_menu_summary),
+                onClick = { onOpenPasswordCsv("blackhole.csv.EXPORT") },
+                modifier = Modifier.testTag("black_hole_password_csv_export"),
+            )
+            Spacer(Modifier.height(16.dp))
+        }
+        if (BuildConfig.BLACK_HOLE_BRANDING) {
+            SettingsSectionTitle(stringResource(R.string.black_hole_passwords_title))
+            Spacer(Modifier.height(8.dp))
+            DataArchiveAction(
+                title = stringResource(R.string.black_hole_passwords_title),
+                summary = stringResource(R.string.black_hole_passwords_summary),
+                onClick = onOpenPasswordVault,
+                modifier = Modifier.testTag("black_hole_password_vault"),
+            )
+            Spacer(Modifier.height(16.dp))
+        }
         Surface(
             onClick = onClearData,
             modifier = Modifier

@@ -26,6 +26,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.selected
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
+import dev.sk2andy.materialbrowser.BuildConfig
 import dev.sk2andy.materialbrowser.R
 import dev.sk2andy.materialbrowser.data.AppIconOption
 import dev.sk2andy.materialbrowser.data.AppIconSelection
@@ -54,7 +55,7 @@ internal fun AppIconSettings() {
             expanded = expanded,
             onDismissRequest = { expanded = false },
         ) {
-            AppIconOption.entries.forEach { option ->
+            selection.options.forEach { option ->
                 DropdownMenuItem(
                     text = {
                         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -93,6 +94,7 @@ internal fun AppIconSettings() {
 @Composable
 private fun AppIconOption.label(): String {
     val name = stringResource(labelRes)
+    if (BuildConfig.BLACK_HOLE_BRANDING) return name
     val variantRes = when (this) {
         AppIconOption.CookieMaxed,
         AppIconOption.LemonMaxed,
@@ -104,7 +106,19 @@ private fun AppIconOption.label(): String {
 }
 
 private val AppIconOption.labelRes: Int
-    get() = when (this) {
+    get() = if (BuildConfig.BLACK_HOLE_BRANDING) {
+        when (this) {
+            AppIconOption.Classic, AppIconOption.JellyBeans -> R.string.bh_icon_classic
+            AppIconOption.Cookie -> R.string.bh_icon_neon
+            AppIconOption.CottonCandy -> R.string.bh_icon_minimal
+            AppIconOption.Lemon -> R.string.bh_icon_dark
+            AppIconOption.Donut -> R.string.bh_icon_cosmic
+            AppIconOption.CookieMaxed -> R.string.bh_icon_luxury
+            AppIconOption.CottonCandyFreeform -> R.string.bh_icon_blue
+            AppIconOption.LemonMaxed -> R.string.bh_icon_redshift
+            AppIconOption.DonutMaxed -> R.string.bh_icon_solar_flare
+        }
+    } else when (this) {
         AppIconOption.Classic -> R.string.app_icon_classic
         AppIconOption.Cookie, AppIconOption.CookieMaxed -> R.string.app_icon_cookie
         AppIconOption.CottonCandy, AppIconOption.CottonCandyFreeform -> R.string.app_icon_cotton_candy

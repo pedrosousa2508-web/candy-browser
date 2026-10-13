@@ -23,6 +23,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import dev.sk2andy.materialbrowser.BuildConfig
 import dev.sk2andy.materialbrowser.R
 import dev.sk2andy.materialbrowser.ui.theme.CandyPink
 import dev.sk2andy.materialbrowser.ui.theme.CandyPurple
@@ -31,6 +32,10 @@ import kotlin.math.sin
 
 @Composable
 internal fun CandySplashScreen(modifier: Modifier = Modifier) {
+    if (BuildConfig.BLACK_HOLE_BRANDING) {
+        BlackHoleSplashScreen(modifier)
+        return
+    }
     val revealProgress = remember { Animatable(0f) }
     LaunchedEffect(Unit) {
         revealProgress.animateTo(

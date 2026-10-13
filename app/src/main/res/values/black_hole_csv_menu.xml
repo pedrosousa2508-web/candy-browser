@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
+    <string name="black_hole_csv_import_title">Import passwords (CSV)</string>
+    <string name="black_hole_csv_export_title">Export passwords (CSV)</string>
+    <string name="black_hole_csv_menu_summary">Fake accounts only. Import or export readable passwords; this prototype is not a secure vault.</string>
+    <string name="black_hole_passwords_title">Senhas</string>
+    <string name="black_hole_passwords_summary">Gerenciador nativo experimental. Somente credenciais inventadas; revisão de segurança pendente.</string>
+</resources>
