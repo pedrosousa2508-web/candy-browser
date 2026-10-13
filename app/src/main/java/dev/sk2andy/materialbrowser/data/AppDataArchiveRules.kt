@@ -64,7 +64,9 @@ internal object AppDataArchiveRules {
         isAllowedArchiveRelativePath(path) && !isEngineSpecificWebsiteState(path)
 
     fun isAllowedArchiveRelativePath(path: String): Boolean =
-        path != PASSWORD_CSV_RELATIVE_PATH &&
+        path != "no_backup/black_hole_native_vault" &&
+            !path.startsWith("no_backup/black_hole_native_vault/") &&
+            path != PASSWORD_CSV_RELATIVE_PATH &&
             !path.startsWith("$PASSWORD_CSV_RELATIVE_PATH.") &&
             path != RECALL_DATABASE_RELATIVE_PATH &&
             !path.startsWith("$RECALL_DATABASE_RELATIVE_PATH-") &&
