@@ -1,6 +1,6 @@
 # Black Hole native password manager (experimental)
 
-Only `fullBlackHoleTest` includes the activity, Compose screen and Android store. No browser startup creates the store or key. Opening settings only supplies callbacks. The native manager is independent of normal/private browsing profiles and has no page capture, autofill, browser history/cookie access or network interface.
+The initial native screen is intentionally Portuguese-only; its strings are explicitly non-translatable for this stage. Only `fullBlackHoleTest` includes the activity, Compose screen and Android store. No browser startup creates the store or key. Opening settings only supplies callbacks. The native manager is independent of normal/private browsing profiles and has no page capture, autofill, browser history/cookie access or network interface.
 
 ## Architecture and storage
 
