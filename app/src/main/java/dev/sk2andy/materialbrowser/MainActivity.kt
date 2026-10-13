@@ -773,6 +773,12 @@ class MainActivity : AppCompatActivity() {
                                 arrayOf("application/zip", "application/octet-stream"),
                             )
                         },
+                        onOpenPasswordVault = {
+                            if (BuildConfig.BLACK_HOLE_BRANDING) {
+                                startActivity(Intent().setClassName(this@MainActivity,
+                                    "dev.sk2andy.materialbrowser.passwords.PasswordVaultActivity"))
+                            }
+                        },
                         onOpenPasswordCsv = { action ->
                             if (BuildConfig.BLACK_HOLE_BRANDING) {
                                 startActivity(Intent().setClassName(

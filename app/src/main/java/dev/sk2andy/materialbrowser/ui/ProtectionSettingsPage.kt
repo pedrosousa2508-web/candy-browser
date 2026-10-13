@@ -92,6 +92,7 @@ internal fun ProtectionAndDataSettingsPage(
     onExportAppData: () -> Unit = {},
     onImportAppData: () -> Unit = {},
     onOpenPasswordCsv: (String) -> Unit = {},
+    onOpenPasswordVault: () -> Unit = {},
     onClearData: () -> Unit,
     onBack: () -> Unit,
 ) {
@@ -480,6 +481,17 @@ internal fun ProtectionAndDataSettingsPage(
                 summary = stringResource(R.string.black_hole_csv_menu_summary),
                 onClick = { onOpenPasswordCsv("blackhole.csv.EXPORT") },
                 modifier = Modifier.testTag("black_hole_password_csv_export"),
+            )
+            Spacer(Modifier.height(16.dp))
+        }
+        if (BuildConfig.BLACK_HOLE_BRANDING) {
+            SettingsSectionTitle(stringResource(R.string.black_hole_passwords_title))
+            Spacer(Modifier.height(8.dp))
+            DataArchiveAction(
+                title = stringResource(R.string.black_hole_passwords_title),
+                summary = stringResource(R.string.black_hole_passwords_summary),
+                onClick = onOpenPasswordVault,
+                modifier = Modifier.testTag("black_hole_password_vault"),
             )
             Spacer(Modifier.height(16.dp))
         }

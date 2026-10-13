@@ -5,5 +5,6 @@
             android:name=".passwords.PasswordCsvActivity"
             android:exported="false"
             android:label="@string/csv_demo_title" />
+        <activity android:name=".passwords.PasswordVaultActivity" android:exported="false" android:label="@string/vault_title" />
     </application>
 </manifest>

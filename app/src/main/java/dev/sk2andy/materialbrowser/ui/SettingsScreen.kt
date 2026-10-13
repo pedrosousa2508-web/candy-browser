@@ -223,6 +223,7 @@ internal fun SettingsScreen(
     onExportAppData: () -> Unit,
     onImportAppData: () -> Unit,
     onOpenPasswordCsv: (String) -> Unit = {},
+    onOpenPasswordVault: () -> Unit = {},
     onClearData: () -> Unit,
     onOpenLegalUrl: (String) -> Unit,
     onDismiss: () -> Unit,
@@ -573,6 +574,7 @@ internal fun SettingsScreen(
                     onExportAppData = onExportAppData,
                     onImportAppData = onImportAppData,
                     onOpenPasswordCsv = onOpenPasswordCsv,
+            onOpenPasswordVault = onOpenPasswordVault,
                     onClearData = onClearData,
                     onBack = { onDestinationChanged(SettingsDestination.Home) },
                 )
