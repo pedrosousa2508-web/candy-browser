@@ -69,6 +69,9 @@ ANDROID_SERIAL=emulator-5554 ./gradlew --no-daemon --max-workers=1 \
 
 The default instrumentation build type remains `debug`. All `adb` commands must explicitly use
 the same serial. These emulator checks do not validate performance on a POCO phone.
+The optimized instrumentation sources live in `app/src/blackHoleAndroidTest`, independently of
+the existing Candy suite, whose fixtures depend on debug-only Activities. Those fixtures are not
+added to the optimized app or disabled in the original debug suite.
 
 The debug key is local to the machine/CI runner. APKs from different runners may not update an
 existing install signed by another key. Do not replace a production app or delete its data to test.

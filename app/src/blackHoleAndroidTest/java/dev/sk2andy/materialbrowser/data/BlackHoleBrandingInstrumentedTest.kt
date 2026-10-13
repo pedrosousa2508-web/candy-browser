@@ -14,7 +14,7 @@ import org.junit.Assert.assertTrue
 import org.junit.Test
 import org.junit.runner.RunWith
 
-/** Run only against fullBlackHoleTest on a dedicated disposable emulator. */
+/** Release-compatible tests, run only on a dedicated disposable emulator. */
 @RunWith(AndroidJUnit4::class)
 class BlackHoleBrandingInstrumentedTest {
     private val context = InstrumentationRegistry.getInstrumentation().targetContext

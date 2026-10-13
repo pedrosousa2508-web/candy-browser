@@ -369,6 +369,13 @@ android {
     }
 
     sourceSets {
+        if (testBuildType == "blackHoleTest") {
+            getByName("androidTest") {
+                java.setSrcDirs(listOf("src/blackHoleAndroidTest/java"))
+                res.setSrcDirs(emptyList<String>())
+                manifest.srcFile("src/blackHoleAndroidTest/AndroidManifest.xml")
+            }
+        }
         getByName("main").assets.srcDir(
             layout.buildDirectory.dir("generated/candySyncIcons/assets").get().asFile,
         )
