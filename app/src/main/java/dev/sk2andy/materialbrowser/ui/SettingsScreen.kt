@@ -222,7 +222,7 @@ internal fun SettingsScreen(
     onFilterStudio: () -> Unit,
     onExportAppData: () -> Unit,
     onImportAppData: () -> Unit,
-    onOpenPasswordCsv: () -> Unit = {},
+    onOpenPasswordCsv: (String) -> Unit = {},
     onClearData: () -> Unit,
     onOpenLegalUrl: (String) -> Unit,
     onDismiss: () -> Unit,

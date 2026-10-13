@@ -94,3 +94,7 @@ Only run this on a new, dedicated disposable emulator. It configures and removes
 Instrumentation compatibility rules remain confined to that build; the downloadable ARM64 APK
 uses the ordinary release optimization rules. CSV tests and the fake provider are absent from it.
 No Actions step decodes or applies any historical Base64 patch.
+
+## Direct settings actions
+
+Black Hole app data exposes separate Import passwords (CSV) and Export passwords (CSV) entries. Both route to the existing activity and its warning, SAF selection, confirmation and export authentication. Intent actions contain no credentials; recreation never restarts a transfer automatically. CPV1 remains isolated from the native manager.

@@ -65,7 +65,7 @@ internal fun BrowserSettingsOverlay(
     onExportGeckoLogs: () -> Unit,
     onClearGeckoLogs: () -> Unit,
     onImportAppData: () -> Unit,
-    onOpenPasswordCsv: () -> Unit = {},
+    onOpenPasswordCsv: (String) -> Unit = {},
     onShowGestureOnboarding: () -> Unit,
     onShowReleaseNotes: () -> Unit,
     onClearData: () -> Unit,

@@ -233,7 +233,7 @@ internal fun BrowserScreen(
     onExportGeckoLogs: () -> Unit = {},
     onClearGeckoLogs: () -> Unit = {},
     onImportAppData: () -> Unit = {},
-    onOpenPasswordCsv: () -> Unit = {},
+    onOpenPasswordCsv: (String) -> Unit = {},
     onShowGestureOnboarding: () -> Unit = {},
     onShowReleaseNotes: () -> Unit = {},
     onManageFirefoxExtensions: (() -> Unit)? = null,

@@ -91,7 +91,7 @@ internal fun ProtectionAndDataSettingsPage(
     onFilterStudio: () -> Unit,
     onExportAppData: () -> Unit = {},
     onImportAppData: () -> Unit = {},
-    onOpenPasswordCsv: () -> Unit = {},
+    onOpenPasswordCsv: (String) -> Unit = {},
     onClearData: () -> Unit,
     onBack: () -> Unit,
 ) {
@@ -469,10 +469,17 @@ internal fun ProtectionAndDataSettingsPage(
         Spacer(Modifier.height(16.dp))
         if (BuildConfig.BLACK_HOLE_BRANDING) {
             DataArchiveAction(
-                title = stringResource(R.string.black_hole_csv_menu_title),
+                title = stringResource(R.string.black_hole_csv_import_title),
                 summary = stringResource(R.string.black_hole_csv_menu_summary),
-                onClick = onOpenPasswordCsv,
-                modifier = Modifier.testTag("black_hole_password_csv"),
+                onClick = { onOpenPasswordCsv("blackhole.csv.IMPORT") },
+                modifier = Modifier.testTag("black_hole_password_csv_import"),
+            )
+            Spacer(Modifier.height(8.dp))
+            DataArchiveAction(
+                title = stringResource(R.string.black_hole_csv_export_title),
+                summary = stringResource(R.string.black_hole_csv_menu_summary),
+                onClick = { onOpenPasswordCsv("blackhole.csv.EXPORT") },
+                modifier = Modifier.testTag("black_hole_password_csv_export"),
             )
             Spacer(Modifier.height(16.dp))
         }

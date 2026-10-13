@@ -91,6 +91,13 @@ class PasswordCsvActivity : AppCompatActivity() {
             setOnClickListener { finish() }
         })
         setContentView(ScrollView(this).apply { addView(column) })
+        // Intent contains only the chosen operation. Never restore a picker or credential preview.
+        if (savedInstanceState == null) {
+            when (intent.action) {
+                "blackhole.csv.IMPORT" -> warnBeforePicker(Picker.Import)
+                "blackhole.csv.EXPORT" -> warnBeforePicker(Picker.Export)
+            }
+        }
     }
 
     private fun reset(message: Int? = null) {

@@ -12,6 +12,7 @@ EXPECTED = {
 }
 CSV_CLASS = "dev.sk2andy.materialbrowser.passwords.PasswordCsvInstrumentedTest"
 CSV_EXPECTED = {
+    "directCsvActionsReuseWarningsWithoutRestoringTransfers",
     "encryptedStorePreservesDuplicatesAndFailsClosedOnCorruption",
     "safImportAndAuthenticatedExportRoundTrip",
     "sensitiveScreenIsPrivateSecureAndRecreationDoesNotRestoreCredentials",

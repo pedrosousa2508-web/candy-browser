@@ -175,6 +175,21 @@ class PasswordCsvInstrumentedTest {
         }
     }
 
+    @Test
+    fun directCsvActionsReuseWarningsWithoutRestoringTransfers() {
+        for (action in listOf("blackhole.csv.IMPORT", "blackhole.csv.EXPORT")) {
+            val intent = Intent(context, PasswordCsvActivity::class.java).setAction(action)
+            ActivityScenario.launch<PasswordCsvActivity>(intent).use { scenario ->
+                assertTrue(device.wait(Until.hasObject(By.res("android", "button1")), 10_000))
+                // The existing confirmation opens before any document or authentication flow.
+                click(By.res("android", "button2"))
+                scenario.recreate()
+                assertFalse(device.hasObject(By.res("android", "button1")))
+                scenario.onActivity { assertEquals(action, it.intent.action) }
+            }
+        }
+    }
+
     private fun chooseExportDestination() {
         clickApp(R.id.csv_export)
         click(By.res("android", "button1"))
