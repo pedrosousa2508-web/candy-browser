@@ -15,6 +15,7 @@ import androidx.test.uiautomator.By
 import androidx.test.uiautomator.UiDevice
 import androidx.test.uiautomator.UiObject2
 import androidx.test.uiautomator.Until
+import androidx.test.uiautomator.StaleObjectException
 import dev.sk2andy.materialbrowser.R
 import dev.sk2andy.materialbrowser.data.AppDataArchiveRules
 import dev.sk2andy.materialbrowser.data.passwords.BlackHolePasswordCsv
@@ -188,10 +189,18 @@ class PasswordCsvInstrumentedTest {
     private fun clickApp(id: Int) = click(By.res(context.resources.getResourceName(id)))
     private fun clickText(text: String) = click(By.text(text))
     private fun click(selector: androidx.test.uiautomator.BySelector) {
-        val control = device.wait(Until.findObject(selector), TIMEOUT)
-        if (control == null) logControlIds()
-        assertNotNull("Expected test control", control)
-        requireNotNull(control).click()
+        repeat(3) { attempt ->
+            device.waitForIdle(1_000)
+            val control = device.wait(Until.findObject(selector), TIMEOUT)
+            if (control == null) logControlIds()
+            assertNotNull("Expected test control", control)
+            try {
+                requireNotNull(control).click()
+                return
+            } catch (stale: StaleObjectException) {
+                if (attempt == 2) throw stale
+            }
+        }
     }
 
     private fun waitTextContains(text: String) =
