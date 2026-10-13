@@ -4,7 +4,14 @@ set -euo pipefail
 : "${ANDROID_SERIAL:?Set the serial of the dedicated emulator}"
 report_dir=app/build/outputs/androidTest-results/black-hole-direct
 mkdir -p "$report_dir"
+capture_logs() {
+  status=$?
+  adb -s "$ANDROID_SERIAL" logcat -d > "$report_dir/logcat.txt" 2>&1 || true
+  exit "$status"
+}
+trap capture_logs EXIT
 adb -s "$ANDROID_SERIAL" wait-for-device
+adb -s "$ANDROID_SERIAL" logcat -c
 adb -s "$ANDROID_SERIAL" install -r app/build/outputs/apk/full/blackHoleTest/app-full-blackHoleTest.apk
 adb -s "$ANDROID_SERIAL" install -r app/build/outputs/apk/androidTest/full/blackHoleTest/app-full-blackHoleTest-androidTest.apk
 adb -s "$ANDROID_SERIAL" shell am instrument -w -r \

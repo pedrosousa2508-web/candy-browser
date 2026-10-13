@@ -336,6 +336,7 @@ android {
             versionNameSuffix = "-blackhole-test"
             manifestPlaceholders["appLabel"] = "@string/app_name"
             buildConfigField("boolean", "BLACK_HOLE_BRANDING", "true")
+            testProguardFiles("black-hole-test-proguard-rules.pro")
             buildConfigField("boolean", "ENABLE_GITHUB_UPDATES", "false")
             matchingFallbacks += listOf("release")
         }

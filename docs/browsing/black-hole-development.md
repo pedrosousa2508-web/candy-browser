@@ -76,6 +76,9 @@ script requires successful completion records for each of the three named tests 
 instrumentation completion; zero-test, partial, skipped or failed runs fail CI. JUnit reports are
 emitted only from those verified completion records. This avoids treating AGP's empty connected-test
 report as readiness evidence.
+The instrumentation APK's reflective JUnit/framework classes are preserved with test-only
+ProGuard directives. Application minification/optimization remains enabled with the original
+application rules. Raw instrumentation output and logcat are retained for process-crash diagnosis.
 
 The debug key is local to the machine/CI runner. APKs from different runners may not update an
 existing install signed by another key. Do not replace a production app or delete its data to test.
