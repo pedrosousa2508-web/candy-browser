@@ -55,7 +55,7 @@ class PasswordVaultActivity : AppCompatActivity() {
                     onLock = ::lock,
                     onAdd = { authenticate { operation { entries = store.summaries(); isNew = true; editor = VaultCredential(UUID.randomUUID().toString(), "https://", "", "") } } },
                     onView = { id -> authenticate { operation { entries = store.summaries(); editor = store.credential(id); isNew = false } } },
-                    onEdit = { editor = it },
+                    onEdit = { field, value -> editor?.let { editor = PasswordVaultRules.editField(it, field, value) } },
                     onCancelEdit = { editor = null },
                     onSave = {
                         val selected = editor ?: return@PasswordVaultScreen

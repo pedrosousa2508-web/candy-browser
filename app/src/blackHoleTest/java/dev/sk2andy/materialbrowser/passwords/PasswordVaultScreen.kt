@@ -35,6 +35,7 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import dev.sk2andy.materialbrowser.R
 import dev.sk2andy.materialbrowser.data.passwords.PasswordVaultRules
+import dev.sk2andy.materialbrowser.data.passwords.VaultField
 import dev.sk2andy.materialbrowser.data.passwords.VaultCredential
 import dev.sk2andy.materialbrowser.data.passwords.VaultSummary
 
@@ -42,7 +43,7 @@ import dev.sk2andy.materialbrowser.data.passwords.VaultSummary
 internal fun PasswordVaultScreen(
     unlocked: Boolean, busy: Boolean, entries: List<VaultSummary>, editor: VaultCredential?, message: Int?,
     onUnlock: () -> Unit, onLock: () -> Unit, onAdd: () -> Unit, onView: (String) -> Unit,
-    onEdit: (VaultCredential) -> Unit, onCancelEdit: () -> Unit, onSave: () -> Unit,
+    onEdit: (VaultField, String) -> Unit, onCancelEdit: () -> Unit, onSave: () -> Unit,
     onDelete: (Set<String>) -> Unit, onDeleteAll: (String) -> Unit, onClose: () -> Unit,
 ) {
     // Nothing confidential uses rememberSaveable, clipboard, browser state or an autofill node.
@@ -101,6 +102,7 @@ internal fun PasswordVaultScreen(
     }
     deletion?.let { ids ->
         AlertDialog(onDismissRequest = { deletion = null },
+            modifier = Modifier.semantics { testTagsAsResourceId = true },
             title = { Text(stringResource(R.string.vault_delete)) },
             text = { Text(stringResource(R.string.vault_delete_confirmation, ids.size)) },
             confirmButton = { TextButton(onClick = { deletion = null; selected = emptySet(); onDelete(ids) }, modifier = Modifier.testTag("vault_confirm_delete")) { Text(stringResource(R.string.vault_confirm)) } },
@@ -108,6 +110,7 @@ internal fun PasswordVaultScreen(
     }
     if (deleteAll) {
         AlertDialog(onDismissRequest = { deleteAll = false },
+            modifier = Modifier.semantics { testTagsAsResourceId = true },
             title = { Text(stringResource(R.string.vault_delete_all)) },
             text = { Column {
                 Text(stringResource(R.string.vault_delete_all_confirmation, entries.size))
@@ -119,13 +122,13 @@ internal fun PasswordVaultScreen(
 }
 
 @Composable
-private fun CredentialEditor(entry: VaultCredential, busy: Boolean, onEdit: (VaultCredential) -> Unit, onSave: () -> Unit, onCancel: () -> Unit) {
+private fun CredentialEditor(entry: VaultCredential, busy: Boolean, onEdit: (VaultField, String) -> Unit, onSave: () -> Unit, onCancel: () -> Unit) {
     var visible by remember(entry.id) { mutableStateOf(false) }
-    OutlinedTextField(entry.site, { onEdit(VaultCredential(entry.id, it.take(4_096), entry.username, entry.password)) },
+    OutlinedTextField(entry.site, { onEdit(VaultField.Site, it) },
         label = { Text(stringResource(R.string.vault_site)) }, enabled = !busy, singleLine = true, modifier = Modifier.fillMaxWidth().testTag("vault_site"))
-    OutlinedTextField(entry.username, { onEdit(VaultCredential(entry.id, entry.site, it.take(1_024), entry.password)) },
+    OutlinedTextField(entry.username, { onEdit(VaultField.Username, it) },
         label = { Text(stringResource(R.string.vault_username)) }, enabled = !busy, singleLine = true, modifier = Modifier.fillMaxWidth().testTag("vault_username"))
-    OutlinedTextField(entry.password, { onEdit(VaultCredential(entry.id, entry.site, entry.username, it.take(4_096))) },
+    OutlinedTextField(entry.password, { onEdit(VaultField.Password, it) },
         label = { Text(stringResource(R.string.vault_password)) }, enabled = !busy, singleLine = true,
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
         visualTransformation = if (visible) VisualTransformation.None else PasswordVisualTransformation(),

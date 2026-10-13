@@ -180,6 +180,7 @@ class PasswordVaultInstrumentedTest {
         val editable = if (node.className == "android.widget.EditText") node else
             node.findObject(By.clazz("android.widget.EditText")) ?: node
         editable.text = value
+        instrumentation.waitForIdleSync()
         device.waitForIdle(500)
     }
     private fun click(tag: String) {

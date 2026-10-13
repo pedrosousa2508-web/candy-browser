@@ -23,6 +23,16 @@ class PasswordVaultRulesTest {
         assertTrue(runCatching { PasswordVaultRules.replace(entries, first, isNew = true) }.isFailure)
         assertTrue(runCatching { PasswordVaultRules.remove(entries, setOf("missing")) }.isFailure)
     }
+    @Test fun `field events preserve other edits before the next UI frame`() {
+        var current = first
+        current = PasswordVaultRules.editField(current, VaultField.Site, "https://edited.example")
+        current = PasswordVaultRules.editField(current, VaultField.Username, "fake-edited")
+        current = PasswordVaultRules.editField(current, VaultField.Password, "invented-edited")
+        assertEquals("https://edited.example", current.site)
+        assertEquals("fake-edited", current.username)
+        assertTrue(current.password == "invented-edited")
+        assertEquals(first.id, current.id)
+    }
     @Test fun `search matches site domain and username without looking at passwords`() {
         val entries = listOf(first.summary(), second.summary())
         assertEquals(2, PasswordVaultRules.search(entries, "INVENTED.EXAMPLE").size)

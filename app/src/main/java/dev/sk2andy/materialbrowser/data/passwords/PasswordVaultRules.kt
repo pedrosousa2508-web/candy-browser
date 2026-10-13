@@ -12,9 +12,17 @@ internal class VaultSummary(val id: String, val site: String, val username: Stri
     override fun toString() = "VaultSummary(redacted)"
 }
 
+internal enum class VaultField { Site, Username, Password }
+
 internal object PasswordVaultRules {
     const val MAX_RECORDS = 5_000
     const val SESSION_MILLIS = 30_000L
+
+    fun editField(entry: VaultCredential, field: VaultField, value: String): VaultCredential =
+        VaultCredential(entry.id,
+            if (field == VaultField.Site) value.take(4_096) else entry.site,
+            if (field == VaultField.Username) value.take(1_024) else entry.username,
+            if (field == VaultField.Password) value.take(4_096) else entry.password)
 
     fun validate(entry: VaultCredential) {
         require(entry.id.matches(Regex("[a-f0-9-]{36}"))) { "Invalid identifier" }

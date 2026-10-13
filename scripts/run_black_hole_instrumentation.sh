@@ -16,6 +16,10 @@ capture_logs() {
 }
 trap capture_logs EXIT
 adb -s "$ANDROID_SERIAL" wait-for-device
+# UIAutomator's debug logger prints setText arguments (including fabricated PIN/passwords).
+# Suppress those library logs before any suite; application code never logs credentials.
+adb -s "$ANDROID_SERIAL" shell setprop log.tag.UiObject2 WARN
+adb -s "$ANDROID_SERIAL" shell setprop log.tag.UiDevice WARN
 adb -s "$ANDROID_SERIAL" logcat -c
 adb -s "$ANDROID_SERIAL" install -r app/build/outputs/apk/full/blackHoleTest/app-full-blackHoleTest.apk
 adb -s "$ANDROID_SERIAL" install -r app/build/outputs/apk/androidTest/full/blackHoleTest/app-full-blackHoleTest-androidTest.apk
