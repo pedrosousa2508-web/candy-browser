@@ -4,6 +4,7 @@
 
 | Need | Detail | Main code |
 | --- | --- | --- |
+| Optimized Black Hole development APK and V4.1 build baseline | [`black-hole-development.md`](black-hole-development.md) | `app/build.gradle.kts`, `.github/workflows/black-hole-dev.yml` |
 | Runtime ownership, WebView lifecycle and navigation | [`runtime-and-navigation.md`](runtime-and-navigation.md) | `MainActivity`, `MainActivityPictureInPictureController`, `BrowserController`, `BrowserViewport`, `BrowserTab` |
 | Background UI-memory trimming, renderer-view release, selected-session priority, audio visibility and delayed Gecko residency budget | [`../tabs-and-profiles/lifecycle-and-persistence.md`](../tabs-and-profiles/lifecycle-and-persistence.md#background-memory) | `BrowserBackgroundMemoryRules`, `GeckoSessionPriorityController`, `BrowserController`, `MainActivity`, `GeckoResumeCover` |
 | Gecko process isolation, multi-page history-cache lifetime and developer memory controls | [`../tabs-and-profiles/lifecycle-and-persistence.md`](../tabs-and-profiles/lifecycle-and-persistence.md#gecko-history-cache-and-developer-controls) | `GeckoRuntimeSettingsFactory`, `GeckoHistoryCacheRules`, `GeckoHistoryCacheConfig`, `BrowserMemorySettings` |

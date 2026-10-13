@@ -448,6 +448,13 @@ Debug APK: `app/build/outputs/apk/full/debug/app-full-debug.apk`. It installs as
 `dev.sk2andy.materialbrowser.linkpeek`, uses the label `Candy Link Peek`, and has a badged launcher
 icon, so it can stay installed beside the release app.
 
+### Black Hole optimized development build
+
+The `black-hole-dev` branch provides a separate `fullBlackHoleTest` variant with release
+optimization and debug signing. See [Black Hole development](docs/browsing/black-hole-development.md)
+for commands, validation and test-only restrictions. The first step integrates build configuration;
+the experimental Black Hole UI and CSV patches are not yet ported.
+
 ### Signed release builds
 
 Release builds are minified with R8 and require a signing key. Never commit a keystore or its

@@ -323,6 +323,18 @@ android {
             matchingFallbacks += listOf("release")
         }
 
+        // V4.1 performance baseline, signed only for experimental local testing.
+        create("blackHoleTest") {
+            initWith(getByName("release"))
+            isDebuggable = false
+            signingConfig = signingConfigs.getByName("debug")
+            applicationIdSuffix = ".blackholedev"
+            versionNameSuffix = "-blackhole-test"
+            manifestPlaceholders["appLabel"] = "Black Hole Dev (TESTE)"
+            buildConfigField("boolean", "ENABLE_GITHUB_UPDATES", "false")
+            matchingFallbacks += listOf("release")
+        }
+
         create("playRelease") {
             initWith(getByName("release"))
             buildConfigField("boolean", "ENABLE_GITHUB_UPDATES", "false")
@@ -397,6 +409,10 @@ android {
 }
 
 androidComponents {
+    beforeVariants(selector().withBuildType("blackHoleTest")) { variant ->
+        variant.enable = variant.productFlavors.toMap()["distribution"] == "full"
+    }
+
     beforeVariants(selector().withBuildType("playRelease")) { variant ->
         variant.enable = variant.productFlavors.toMap()["distribution"] == "full"
     }
