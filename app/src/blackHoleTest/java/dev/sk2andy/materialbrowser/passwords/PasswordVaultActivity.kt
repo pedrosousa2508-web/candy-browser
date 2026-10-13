@@ -13,6 +13,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.lifecycle.withResumed
 import dev.sk2andy.materialbrowser.R
 import dev.sk2andy.materialbrowser.data.passwords.BlackHoleNativeVaultStore
@@ -75,9 +76,11 @@ class PasswordVaultActivity : AppCompatActivity() {
             }
         }
         lifecycleScope.launch {
-            while (true) {
-                delay(1_000)
-                if (unlocked && !PasswordVaultRules.active(authenticatedAt, lastInteraction, SystemClock.elapsedRealtime())) lock()
+            lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                while (true) {
+                    delay(1_000)
+                    if (unlocked && !PasswordVaultRules.active(authenticatedAt, lastInteraction, SystemClock.elapsedRealtime())) lock()
+                }
             }
         }
     }
