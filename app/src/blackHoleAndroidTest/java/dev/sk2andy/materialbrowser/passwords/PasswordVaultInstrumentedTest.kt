@@ -4,6 +4,8 @@ import android.content.Context
 import android.content.ContextWrapper
 import android.content.Intent
 import android.os.Build
+import android.os.SystemClock
+import android.security.keystore.UserNotAuthenticatedException
 import android.security.keystore.KeyInfo
 import android.view.WindowManager
 import androidx.test.core.app.ActivityScenario
@@ -139,7 +141,20 @@ class PasswordVaultInstrumentedTest {
             add("https://expiry.invented.example", "fake-expiry", "invented-expiry")
             assertTrue("Absolute/inactivity lock must occur", device.wait(Until.hasObject(By.res("vault_locked")), 35_000))
             assertFalse(device.hasObject(By.res("vault_search")))
-            assertTrue("OS Keystore authorization must also expire", runCatching { BlackHoleNativeVaultStore(context).summaries() }.isFailure)
+            val store = BlackHoleNativeVaultStore(context)
+            val deadline = SystemClock.elapsedRealtime() + 3_000
+            var rejectedForAuthentication = false
+            do {
+                val failure = runCatching { store.summaries() }.exceptionOrNull()
+                if (failure != null) {
+                    rejectedForAuthentication = generateSequence(failure) { it.cause }
+                        .any { it is UserNotAuthenticatedException ||
+                            it is android.security.KeyStoreException && it.requiresUserAuthentication() }
+                    break // Corruption/missing-file errors must never stand in for expiry.
+                }
+                SystemClock.sleep(100)
+            } while (SystemClock.elapsedRealtime() < deadline)
+            assertTrue("Keystore must reject expired authentication within the bounded clock tolerance", rejectedForAuthentication)
         }
     }
 
