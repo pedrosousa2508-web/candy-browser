@@ -452,8 +452,8 @@ icon, so it can stay installed beside the release app.
 
 The `black-hole-dev` branch provides a separate `fullBlackHoleTest` variant with release
 optimization and debug signing. See [Black Hole development](docs/browsing/black-hole-development.md)
-for commands, validation and test-only restrictions. The first step integrates build configuration;
-the experimental Black Hole UI and CSV patches are not yet ported.
+for commands, validation and test-only restrictions. Black Hole identity and nine launcher icons
+are isolated in this variant; the experimental CSV and vault features are not included.
 
 ### Signed release builds
 

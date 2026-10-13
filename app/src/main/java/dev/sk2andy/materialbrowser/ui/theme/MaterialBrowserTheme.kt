@@ -29,6 +29,7 @@ import dev.sk2andy.materialbrowser.data.BrowserColorPalette
 import dev.sk2andy.materialbrowser.data.BrowserShapeStyle
 import dev.sk2andy.materialbrowser.data.BrowserSurfaceStyle
 import dev.sk2andy.materialbrowser.ui.CandyChromeSurfaceRenderer
+import dev.sk2andy.materialbrowser.BuildConfig
 import dev.sk2andy.materialbrowser.ui.LocalCandyChromeSurfaceRenderer
 import dev.sk2andy.materialbrowser.ui.androidCandyChromeSurfaceRenderer
 import dev.sk2andy.materialbrowser.shared.ui.theme.CandyDarkColors
@@ -59,8 +60,16 @@ internal fun CandyTheme(
     val dark = settings.usesDarkColors(systemDark)
     val baseColors = when (settings.colorPalette) {
         BrowserColorPalette.Dynamic ->
-            if (dark) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
-        BrowserColorPalette.Candy -> if (dark) CandyDarkColors else CandyLightColors
+            if (BuildConfig.BLACK_HOLE_BRANDING) {
+                if (dark) BlackHoleDarkColors else BlackHoleLightColors
+            } else {
+                if (dark) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
+            }
+        BrowserColorPalette.Candy -> if (BuildConfig.BLACK_HOLE_BRANDING) {
+            if (dark) BlackHoleDarkColors else BlackHoleLightColors
+        } else {
+            if (dark) CandyDarkColors else CandyLightColors
+        }
         BrowserColorPalette.Neutral -> if (dark) NeutralDarkColors else NeutralLightColors
     }
     val appearanceColors = if (settings.appearanceMode == BrowserAppearanceMode.Amoled) {

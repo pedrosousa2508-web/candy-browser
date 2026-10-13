@@ -1,9 +1,9 @@
 # Black Hole development build
 
-The `black-hole-dev` branch introduces an optimized, test-signed Android build based on the
-Black Hole V4.1 experiment. This first step versions the build configuration; it does not yet
-port the experiment's branding, UI or CSV prototype patches. Browser behavior and mandatory
-upstream attribution remain unchanged.
+The `black-hole-dev` branch provides an optimized, test-signed Android build based on the
+Black Hole V4.1 experiment. Branding and original icon artwork now live in versioned
+`app/src/blackHoleTest/res` overlays. Browser behavior and mandatory upstream attribution remain
+unchanged; no CSV, vault or new autofill feature is included.
 
 ## Build contract
 
@@ -14,7 +14,7 @@ upstream attribution remain unchanged.
 | Debugging | `isDebuggable=false`; a debug signing key does not enable debug runtime behavior |
 | Signing | Android debug signing configuration only; no production signing credentials needed |
 | Package | `dev.sk2andy.materialbrowser.blackholedev`, independent from production and previous experimental installs |
-| Label/version | `Black Hole Dev (TESTE)` / `-blackhole-test` suffix |
+| Label/version | `Black Hole Browser` / `-blackhole-test` suffix |
 | Updates | GitHub application updates disabled |
 | ABI | CI uses `-Pcandy.releaseAbi=arm64-v8a`, as in V4.1; omit locally for other supported devices |
 | Production | Existing release/localRelease signing checks remain required; no `-x validateReleaseSigning` |
@@ -36,6 +36,39 @@ rewrites or signing-task exclusions. Existing V4.1 workflows remain as historica
 It runs only on `black-hole-dev` and uploads short-lived test artifacts, without publishing releases.
 
 ## Validation and installation limits
+
+The nine visible icon choices are Classic, Neon, Minimal, Dark, Cosmic, Luxury, Blue, Red Shift
+and Solar Flare. Existing technical launcher aliases remain stable. The old Jelly Beans alias
+resolves to Classic artwork as an upgrade compatibility alias and is not shown as a tenth choice;
+selecting any of the nine choices disables all other aliases. No preferences or user databases
+are migrated or cleared. Candy variants retain their ten original choices, resources and palettes.
+
+BlackHoleTest uses the recovered violet/cyan palette for the Dynamic/Candy palette choices,
+respecting the saved light/dark/AMOLED mode and preserving Neutral. It does not rewrite appearance
+preferences. Its splash is static, with the Classic logo, name and `Browse Beyond` tagline.
+Existing onboarding gestures and private-mode transitions remain intact. No continuous animation,
+particles, bitmap processing or browser-session changes are introduced.
+
+Resources can be refreshed explicitly with `python3 scripts/generate_black_hole_branding.py`.
+This deterministic resource generator is not a source patch and does not decode archives or
+modify Kotlin during builds. CI runs its five regression tests and checks that regeneration leaves
+the checked-in overlays unchanged. Legal copy, `Candy Rules v1` protocol labels and references to
+the separately distributed Candy Sync extension preserve their upstream identity.
+
+The workflow also tests the optimized app on its own API 35 x86_64 emulator. It builds without the
+ARM64-only flag for that job; the downloadable artifact is still produced by the ARM64 build job.
+The instrumented suite verifies localized identity/credits, all nine aliases, persisted selection,
+one enabled launcher and recovery from the compatibility alias. To run it on a dedicated device:
+
+```sh
+ANDROID_SERIAL=emulator-5554 ./gradlew --no-daemon --max-workers=1 \
+  -Pcandy.androidTestBuildType=blackHoleTest \
+  -Pandroid.testInstrumentationRunnerArguments.class=dev.sk2andy.materialbrowser.data.BlackHoleBrandingInstrumentedTest \
+  :app:connectedFullBlackHoleTestAndroidTest
+```
+
+The default instrumentation build type remains `debug`. All `adb` commands must explicitly use
+the same serial. These emulator checks do not validate performance on a POCO phone.
 
 The debug key is local to the machine/CI runner. APKs from different runners may not update an
 existing install signed by another key. Do not replace a production app or delete its data to test.

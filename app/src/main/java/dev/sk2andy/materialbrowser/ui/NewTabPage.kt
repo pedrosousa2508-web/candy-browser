@@ -58,6 +58,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import dev.sk2andy.materialbrowser.BuildConfig
 import dev.sk2andy.materialbrowser.R
 import dev.sk2andy.materialbrowser.browser.FavoriteAnimationSpeed
 import dev.sk2andy.materialbrowser.data.FavoriteEntry
@@ -192,6 +193,21 @@ internal fun NewTabPage(
                     }
                 }
                 if (!incognito) {
+                    if (BuildConfig.BLACK_HOLE_BRANDING) {
+                        Text(
+                            text = stringResource(R.string.app_name),
+                            style = MaterialTheme.typography.titleLarge,
+                            fontWeight = FontWeight.Bold,
+                            color = colors.onSurface,
+                            modifier = Modifier.testTag("black_hole_home_name"),
+                        )
+                        Text(
+                            text = stringResource(R.string.black_hole_tagline),
+                            style = MaterialTheme.typography.labelMedium,
+                            color = colors.primary,
+                            modifier = Modifier.testTag("black_hole_home_tagline"),
+                        )
+                    }
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
