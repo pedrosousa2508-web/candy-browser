@@ -59,8 +59,9 @@ class PasswordVaultInstrumentedTest {
             add("https://beta.invented.example", "fake-beta", "invented-second")
             field("vault_search", "fake-alpha")
             assertTrue(device.hasObject(By.text("https://alpha.invented.example/login")))
-            assertFalse(device.hasObject(By.text("https://beta.invented.example")))
+            assertTrue(device.wait(Until.gone(By.text("https://beta.invented.example")), TIMEOUT))
             field("vault_search", "")
+            waitText("https://beta.invented.example")
             // Read/edit requires another real OS credential confirmation.
             firstTag("vault_view_").click(); authenticate(); waitTag("vault_password")
             click("vault_show")
@@ -75,7 +76,7 @@ class PasswordVaultInstrumentedTest {
             click("vault_delete_selected"); click("vault_confirm_delete"); authenticate(); waitTag("vault_empty")
             add("https://all.invented.example", "fake-all", "invented-all")
             click("vault_delete_all")
-            assertFalse(requireNotNull(device.findObject(By.res("vault_confirm_all"))).isEnabled)
+            assertFalse(requireNotNull(device.wait(Until.findObject(By.res("vault_confirm_all")), TIMEOUT)).isEnabled)
             field("vault_confirmation", "APAGAR TODAS")
             click("vault_confirm_all"); authenticate(); waitTag("vault_empty")
         }
@@ -175,7 +176,7 @@ class PasswordVaultInstrumentedTest {
         click("vault_save"); authenticate(); waitText(site)
     }
     private fun field(tag: String, value: String) {
-        val node = requireNotNull(device.wait(Until.findObject(By.res(tag)), TIMEOUT))
+        val node = requireNotNull(device.wait(Until.findObject(By.res(tag).enabled(true)), TIMEOUT))
         // Compose decoration semantics may wrap the actual editable accessibility node.
         val editable = if (node.className == "android.widget.EditText") node else
             node.findObject(By.clazz("android.widget.EditText")) ?: node
@@ -185,9 +186,9 @@ class PasswordVaultInstrumentedTest {
     }
     private fun click(tag: String) {
         device.waitForIdle(500)
-        requireNotNull(device.wait(Until.findObject(By.res(tag)), TIMEOUT)) { "Missing test control $tag" }.click()
+        requireNotNull(device.wait(Until.findObject(By.res(tag).enabled(true)), TIMEOUT)) { "Missing test control $tag" }.click()
     }
-    private fun firstTag(prefix: String) = requireNotNull(device.wait(Until.findObject(By.res(Pattern.compile("$prefix.*"))), TIMEOUT))
+    private fun firstTag(prefix: String) = requireNotNull(device.wait(Until.findObject(By.res(Pattern.compile("$prefix.*")).enabled(true)), TIMEOUT))
     private fun waitTag(tag: String) = assertTrue(device.wait(Until.hasObject(By.res(tag)), TIMEOUT))
     private fun waitTagGone(tag: String) = assertTrue(device.wait(Until.gone(By.res(tag)), TIMEOUT))
     private fun waitText(text: String) = assertTrue(device.wait(Until.hasObject(By.text(text)), TIMEOUT))
