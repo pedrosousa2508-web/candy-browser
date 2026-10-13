@@ -12,3 +12,7 @@
 # in TestDirCalculator). Keep its API in the instrumented app, since the runner
 # is compiled separately and its callers are invisible to application R8.
 -keep class kotlin.** { *; }
+
+# CSV instrumentation calls the parser, authorization and encrypted store across APKs.
+-keep class dev.sk2andy.materialbrowser.data.passwords.** { *; }
+-keep class dev.sk2andy.materialbrowser.data.AppDataArchiveRules { *; }

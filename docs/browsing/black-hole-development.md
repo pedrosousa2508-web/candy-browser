@@ -94,6 +94,11 @@ existing install signed by another key. Do not replace a production app or delet
 The separate package does not migrate previous profiles or experimental vaults.
 Use fabricated accounts only. Never publish this test-signed APK or use real passwords.
 
+The recovered V4.1 CSV demonstration is documented in
+[`../privacy-protection/black-hole-password-csv.md`](../privacy-protection/black-hole-password-csv.md).
+It is isolated in the Black Hole screen, with no autofill. The emulator job runs the original
+three branding tests plus three CSV tests; each suite requires its own three actual completions.
+
 The current Gradle configuration exposes JVM unit tests for debug variants; this workflow runs
 Full and FOSS debug unit tests. Those tests do not execute the installed R8-processed APK. Before claiming
 performance parity, smoke-test that APK on a dedicated device and compare the V4.1 baseline using

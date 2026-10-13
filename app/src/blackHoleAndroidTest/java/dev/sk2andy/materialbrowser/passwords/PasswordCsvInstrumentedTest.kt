@@ -1,0 +1,196 @@
+package dev.sk2andy.materialbrowser.passwords
+
+import android.content.ComponentName
+import android.content.Context
+import android.content.ContextWrapper
+import android.os.Build
+import android.os.SystemClock
+import android.provider.DocumentsContract
+import android.view.WindowManager
+import androidx.test.core.app.ActivityScenario
+import androidx.test.ext.junit.runners.AndroidJUnit4
+import androidx.test.platform.app.InstrumentationRegistry
+import androidx.test.uiautomator.By
+import androidx.test.uiautomator.UiDevice
+import androidx.test.uiautomator.UiObject2
+import androidx.test.uiautomator.Until
+import dev.sk2andy.materialbrowser.R
+import dev.sk2andy.materialbrowser.data.AppDataArchiveRules
+import dev.sk2andy.materialbrowser.data.passwords.BlackHolePasswordCsv
+import dev.sk2andy.materialbrowser.data.passwords.BlackHolePasswordCsvStore
+import dev.sk2andy.materialbrowser.data.passwords.PasswordCsvExportAuthorization
+import dev.sk2andy.materialbrowser.data.passwords.PasswordImportResult
+import java.io.ByteArrayOutputStream
+import java.io.File
+import java.util.regex.Pattern
+import org.junit.After
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertTrue
+import org.junit.Before
+import org.junit.Test
+import org.junit.runner.RunWith
+
+@RunWith(AndroidJUnit4::class)
+class PasswordCsvInstrumentedTest {
+    private val instrumentation = InstrumentationRegistry.getInstrumentation()
+    private val context: Context = instrumentation.targetContext
+    private val device = UiDevice.getInstance(instrumentation)
+    private val isolated = File(context.noBackupFilesDir, "invented-csv-store-test")
+    private var createdProductionFixture = false
+
+    @Before
+    fun requireDisposableEmulator() {
+        check(Build.HARDWARE in setOf("ranchu", "goldfish")) { "Disposable emulator required" }
+        check(!File(context.noBackupFilesDir, BlackHolePasswordCsvStore.FILE_NAME).exists()) {
+            "Refuse to alter an existing prototype dataset"
+        }
+    }
+
+    @After
+    fun removeInventedFixtures() {
+        isolated.deleteRecursively()
+        if (createdProductionFixture) {
+            for (suffix in listOf("", ".bak", ".new")) {
+                File(context.noBackupFilesDir, BlackHolePasswordCsvStore.FILE_NAME + suffix).delete()
+            }
+        }
+    }
+
+    @Test
+    fun encryptedStorePreservesDuplicatesAndFailsClosedOnCorruption() {
+        check(isolated.mkdirs())
+        val isolatedContext = object : ContextWrapper(context) {
+            override fun getNoBackupFilesDir(): File = isolated
+        }
+        val store = BlackHolePasswordCsvStore(isolatedContext)
+        val preview = BlackHolePasswordCsv.parse(CsvTestDocumentsProvider.INVENTED_CSV.byteInputStream())
+        assertEquals(PasswordImportResult(3, 1, 1, 3), store.import(preview))
+        assertEquals(PasswordImportResult(0, 4, 0, 3), store.import(preview))
+        val target = File(isolated, BlackHolePasswordCsvStore.FILE_NAME)
+        val encrypted = target.readBytes()
+        assertFalse(encrypted.toString(Charsets.ISO_8859_1).contains("fake-password-B"))
+        assertFalse(AppDataArchiveRules.shouldExportRelativePath("no_backup/${target.name}"))
+
+        var opened = false
+        val expired = PasswordCsvExportAuthorization(0)
+        assertTrue(runCatching { store.exportCsv(expired, { 30_001 }) {
+            opened = true
+            ByteArrayOutputStream()
+        } }.isFailure)
+        assertFalse(opened)
+
+        val output = ByteArrayOutputStream()
+        val authorization = PasswordCsvExportAuthorization(SystemClock.elapsedRealtime())
+        assertEquals(3, store.exportCsv(authorization, SystemClock::elapsedRealtime) { output })
+        val exported = BlackHolePasswordCsv.parse(output.toByteArray().inputStream())
+        assertEquals(3, exported.entries.size)
+        assertEquals(" fake,\"A\"  ", exported.entries[0].password)
+        assertTrue(runCatching { store.exportCsv(authorization, SystemClock::elapsedRealtime) {
+            error("A consumed grant must not open a destination")
+        } }.isFailure)
+
+        encrypted[encrypted.lastIndex] = (encrypted.last().toInt() xor 1).toByte()
+        target.writeBytes(encrypted)
+        assertTrue(runCatching { store.import(preview) }.isFailure)
+        assertTrue(encrypted.contentEquals(target.readBytes()))
+    }
+
+    @Test
+    fun safImportAndAuthenticatedExportRoundTrip() {
+        createdProductionFixture = true
+        ActivityScenario.launch(PasswordCsvActivity::class.java).use {
+            clickApp(R.id.csv_import)
+            clickText(context.getString(R.string.csv_demo_continue))
+            chooseTestRoot()
+            clickText("invented-input.csv")
+            waitTextContains("Rows: 5")
+            click(By.res("android", "button1"))
+            waitStatus("Added: 3")
+            waitStatus("Exact duplicates: 1")
+            waitStatus("Other password versions preserved: 1")
+
+            chooseExportDestination()
+            waitDeviceCredential()
+            device.pressBack()
+            if (!device.wait(Until.gone(By.res(Pattern.compile(".*:id/password_entry"))), 1_500)) {
+                device.pressBack() // Some PIN screens first dismiss the input keyboard.
+            }
+            waitStatus(context.getString(R.string.csv_demo_cancelled))
+            val cancelled = DocumentsContract.buildDocumentUri(CsvTestDocumentsProvider.AUTHORITY, "export-1")
+            assertEquals(0, context.contentResolver.openInputStream(cancelled)!!.use { it.readBytes().size })
+
+            chooseExportDestination()
+            val pin = waitDeviceCredential()
+            pin.text = "246810" // Fabricated lock PIN configured only on the disposable CI emulator.
+            device.pressEnter()
+            waitStatus("Exported 3")
+            val exportedUri = DocumentsContract.buildDocumentUri(CsvTestDocumentsProvider.AUTHORITY, "export-2")
+            val exported = context.contentResolver.openInputStream(exportedUri)!!.use(BlackHolePasswordCsv::parse)
+            assertEquals(3, exported.entries.size)
+            assertEquals(" fake,\"A\"  ", exported.entries[0].password)
+            assertEquals(1, exported.appOnlyRows)
+            assertTrue(DocumentsContract.deleteDocument(context.contentResolver, cancelled))
+            assertTrue(DocumentsContract.deleteDocument(context.contentResolver, exportedUri))
+        }
+    }
+
+    @Test
+    fun sensitiveScreenIsPrivateSecureAndRecreationDoesNotRestoreCredentials() {
+        val info = context.packageManager.getActivityInfo(ComponentName(context, PasswordCsvActivity::class.java), 0)
+        assertFalse(info.exported)
+        ActivityScenario.launch(PasswordCsvActivity::class.java).use { scenario ->
+            scenario.onActivity { activity ->
+                assertTrue(activity.window.attributes.flags and WindowManager.LayoutParams.FLAG_SECURE != 0)
+                assertTrue(activity.getString(R.string.csv_demo_warning).contains("NOT a secure vault"))
+            }
+            scenario.recreate()
+            scenario.onActivity { activity ->
+                assertTrue(activity.window.attributes.flags and WindowManager.LayoutParams.FLAG_SECURE != 0)
+                assertEquals("", activity.findViewById<android.widget.TextView>(R.id.csv_status).text.toString())
+            }
+        }
+    }
+
+    private fun chooseExportDestination() {
+        clickApp(R.id.csv_export)
+        clickText(context.getString(R.string.csv_demo_continue))
+        chooseTestRoot()
+        click(By.res(Pattern.compile(".*:id/action_menu_save")))
+    }
+
+    private fun chooseTestRoot() {
+        val roots = device.wait(Until.findObject(By.desc(Pattern.compile("(?i)(Show roots|Open navigation drawer)"))), TIMEOUT)
+        if (roots != null) roots.click()
+        clickText(CsvTestDocumentsProvider.ROOT_TITLE)
+    }
+
+    private fun waitDeviceCredential(): UiObject2 {
+        var pin = device.wait(Until.findObject(By.res(Pattern.compile(".*:id/password_entry"))), TIMEOUT)
+        if (pin == null) {
+            click(By.text(Pattern.compile("(?i).*use (pin|screen lock|password).*")))
+            pin = device.wait(Until.findObject(By.res(Pattern.compile(".*:id/password_entry"))), TIMEOUT)
+        }
+        assertNotNull("Android device credential prompt must be shown", pin)
+        return requireNotNull(pin)
+    }
+
+    private fun clickApp(id: Int) = click(By.res(context.resources.getResourceName(id)))
+    private fun clickText(text: String) = click(By.text(text))
+    private fun click(selector: androidx.test.uiautomator.BySelector) {
+        val control = device.wait(Until.findObject(selector), TIMEOUT)
+        assertNotNull("Expected test control", control)
+        requireNotNull(control).click()
+    }
+
+    private fun waitTextContains(text: String) =
+        assertTrue("Expected numeric import preview", device.wait(Until.hasObject(By.textContains(text)), TIMEOUT))
+
+    private fun waitStatus(text: String) = assertTrue("Expected transfer report",
+        device.wait(Until.hasObject(By.res(context.resources.getResourceName(R.id.csv_status)).textContains(text)), TIMEOUT))
+
+    private companion object {
+        const val TIMEOUT = 15_000L
+    }
+}

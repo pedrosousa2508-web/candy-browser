@@ -4,6 +4,7 @@
 
 | Need | Detail | Main code |
 | --- | --- | --- |
+| Black Hole experimental CSV for fabricated credentials | [`black-hole-password-csv.md`](black-hole-password-csv.md) | `data/passwords`, Black Hole-only `PasswordCsvActivity` |
 | Request/cosmetic blocking, Candy Rules, validation and precedence | [`blocking-and-rules.md`](blocking-and-rules.md) | `blocking/ContentBlocker`, `RequestBlocker`, `CandyRule*` |
 | Privacy X-Ray, Permission Radar, asset maintenance and audits | [`xray-permissions-and-maintenance.md`](xray-permissions-and-maintenance.md) | `PrivacyXRay`, `browser/permissions`, `scripts/`, `docs/audits/` |
 | WebRTC IP protection and engine fallbacks | [`../browsing/platform-engines.md`](../browsing/platform-engines.md#webrtc-protection) | `WebRtcProtectionMode`, engine factories, Gecko Privacy host |

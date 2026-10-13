@@ -1,5 +1,5 @@
 import unittest
-from verify_black_hole_instrumentation import completed_tests
+from verify_black_hole_instrumentation import completed_tests, CSV_CLASS, CSV_EXPECTED
 
 CLASS = "dev.sk2andy.materialbrowser.data.BlackHoleBrandingInstrumentedTest"
 NAMES = [
@@ -36,6 +36,13 @@ class InstrumentationReportTest(unittest.TestCase):
     def test_rejects_aborted_instrumentation(self):
         with self.assertRaises(ValueError):
             completed_tests(transcript(NAMES).replace("INSTRUMENTATION_CODE: -1", "INSTRUMENTATION_CODE: 0"))
+
+    def test_csv_profile_requires_all_csv_cases_and_correct_class(self):
+        text = transcript(sorted(CSV_EXPECTED)).replace(CLASS, CSV_CLASS)
+        self.assertEqual(3, len(completed_tests(text, CSV_CLASS, CSV_EXPECTED)))
+        for rejected in (text.replace(CSV_CLASS, CLASS), text.replace("INSTRUMENTATION_STATUS_CODE: 0", "INSTRUMENTATION_STATUS_CODE: -2", 1)):
+            with self.assertRaises(ValueError):
+                completed_tests(rejected, CSV_CLASS, CSV_EXPECTED)
 
 
 if __name__ == "__main__":

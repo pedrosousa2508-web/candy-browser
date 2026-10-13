@@ -1,4 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
-    <application android:label="Black Hole Branding Test Harness" />
+    <application android:label="Black Hole Test Harness">
+        <!-- Fake documents only, in the test APK. Production APK has no test provider. -->
+        <provider
+            android:name="dev.sk2andy.materialbrowser.passwords.CsvTestDocumentsProvider"
+            android:authorities="dev.sk2andy.materialbrowser.blackholedev.test.csv.documents"
+            android:exported="true"
+            android:grantUriPermissions="true"
+            android:permission="android.permission.MANAGE_DOCUMENTS">
+            <intent-filter>
+                <action android:name="android.content.action.DOCUMENTS_PROVIDER" />
+            </intent-filter>
+        </provider>
+    </application>
 </manifest>

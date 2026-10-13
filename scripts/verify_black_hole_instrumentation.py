@@ -10,9 +10,15 @@ EXPECTED = {
     "eachOfNineIconsEnablesExactlyOneLauncherAndPersistsSelection",
     "legacyJellyBeansAliasRemainsLaunchableAndCanSwitchToNeon",
 }
+CSV_CLASS = "dev.sk2andy.materialbrowser.passwords.PasswordCsvInstrumentedTest"
+CSV_EXPECTED = {
+    "encryptedStorePreservesDuplicatesAndFailsClosedOnCorruption",
+    "safImportAndAuthenticatedExportRoundTrip",
+    "sensitiveScreenIsPrivateSecureAndRecreationDoesNotRestoreCredentials",
+}
 
 
-def completed_tests(text):
+def completed_tests(text, class_name=CLASS, expected=EXPECTED):
     records = []
     current = {}
     for line in text.splitlines():
@@ -28,23 +34,24 @@ def completed_tests(text):
             current = {}
     if "INSTRUMENTATION_CODE: -1" not in text:
         raise ValueError("Instrumentation did not finish normally")
-    if len(records) != 3 or {name for _, name in records} != EXPECTED:
-        raise ValueError(f"Expected all three branding tests, got {records}")
-    if any(name != CLASS for name, _ in records):
+    if len(records) != len(expected) or {name for _, name in records} != expected:
+        raise ValueError(f"Expected all {len(expected)} tests, got {records}")
+    if any(name != class_name for name, _ in records):
         raise ValueError("Unexpected instrumentation class")
     return records
 
 
-def main(log, report):
-    records = completed_tests(Path(log).read_text())
-    root = ET.Element("testsuite", name=CLASS, tests="3", failures="0", errors="0", skipped="0")
+def main(log, report, profile="branding"):
+    class_name, expected = {"branding": (CLASS, EXPECTED), "csv": (CSV_CLASS, CSV_EXPECTED)}[profile]
+    records = completed_tests(Path(log).read_text(), class_name, expected)
+    root = ET.Element("testsuite", name=class_name, tests=str(len(expected)), failures="0", errors="0", skipped="0")
     for class_name, test_name in records:
         ET.SubElement(root, "testcase", classname=class_name, name=test_name)
     path = Path(report)
     path.parent.mkdir(parents=True, exist_ok=True)
     ET.indent(root)
     path.write_text(ET.tostring(root, encoding="unicode") + "\n")
-    print("All three branding instrumentation tests completed successfully.")
+    print(f"All {len(expected)} {profile} instrumentation tests completed successfully.")
 
 
 if __name__ == "__main__":
