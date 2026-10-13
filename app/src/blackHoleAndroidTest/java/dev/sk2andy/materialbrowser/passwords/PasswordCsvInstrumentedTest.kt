@@ -157,7 +157,8 @@ class PasswordCsvInstrumentedTest {
         clickApp(R.id.csv_export)
         clickText(context.getString(R.string.csv_demo_continue))
         chooseTestRoot()
-        click(By.res(Pattern.compile(".*:id/action_menu_save")))
+        // Android 35 DocumentsUI fragment_save.xml uses the framework button1 ID.
+        click(By.res("android", "button1"))
     }
 
     private fun chooseTestRoot() {
