@@ -97,7 +97,7 @@ Use fabricated accounts only. Never publish this test-signed APK or use real pas
 The recovered V4.1 CSV demonstration is documented in
 [`../privacy-protection/black-hole-password-csv.md`](../privacy-protection/black-hole-password-csv.md).
 It is isolated in the Black Hole screen, with no autofill. The emulator job runs the original
-three branding tests plus three CSV tests; each suite requires its own three actual completions.
+three branding tests, four CSV tests and four native-vault tests; each suite requires all its named completions.
 
 The current Gradle configuration exposes JVM unit tests for debug variants; this workflow runs
 Full and FOSS debug unit tests. Those tests do not execute the installed R8-processed APK. Before claiming
@@ -106,3 +106,5 @@ the same engine, sites, tab count, settings and equivalent installation/cache st
 and warm startup, frame timing, memory, tab restoration, background return, media and extensions.
 Test private-mode isolation and keep all existing license/attribution notices. Enable performance
 diagnostics only for measurement builds, not as a default optimization.
+
+The Black Hole native password manager is isolated from CPV1 and lazy-initialized. See [native manager architecture and security limits](../privacy-protection/black-hole-native-passwords.md). The experimental manager requires review before real-password use; no migration or autofill is included.

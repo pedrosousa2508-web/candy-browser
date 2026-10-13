@@ -73,7 +73,7 @@ the selected partial document is deleted best-effort; failure to delete is repor
 ## Verification
 
 The current workflow builds both normal variants and the R8-optimized test APK. The emulator
-job retains the existing three branding cases and adds three CSV cases with independent
+job retains the existing three branding cases and adds four CSV cases with independent
 completion checks. The test-only provider exercises real Android Files and document grants
 with invented data. The fresh emulator receives fabricated PIN `246810` to test the actual OS
 device-credential path. A test-only activity monitor adds Android's `EXTRA_INITIAL_URI` to
