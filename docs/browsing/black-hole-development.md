@@ -82,8 +82,10 @@ application rules. Raw instrumentation output and logcat are retained for proces
 Run `38358157390` crashed before discovery because AndroidJUnitRunner could not resolve
 `androidx.tracing.Trace`, a shared dependency eliminated by application R8. The explicit
 `candy.androidTestBuildType=blackHoleTest` mode keeps that class and its entry points in the
-instrumented app only. It also preserves the icon-selection APIs and specific Kotlin helper
-methods called from the separate test APK, which application R8 otherwise inlines or removes.
+instrumented app only. It also preserves the icon-selection APIs and the shared Kotlin runtime
+called from the separate test APK and AndroidX Test itself. Run `38396903314` confirmed that
+the runner's `TestDirCalculator` needs `kotlin.LazyKt` before test discovery; preserving only
+helpers directly called by the test class is insufficient. Application R8 cannot see these callers.
 R8 remains enabled; the downloadable ARM64 build does not load these instrumentation
 compatibility rules.
 

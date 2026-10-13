@@ -8,11 +8,7 @@
 # this instrumentation mode instead of reducing optimization in the phone APK.
 -keep class dev.sk2andy.materialbrowser.data.AppIconSelection { *; }
 -keep class dev.sk2andy.materialbrowser.data.AppIconOption { *; }
--keep class kotlin.collections.CollectionsKt* {
-    public static java.util.List listOf(java.lang.Object[]);
-    public static java.lang.Object single(java.util.List);
-    public static int collectionSizeOrDefault(java.lang.Iterable, int);
-}
--keep class kotlin.text.StringsKt* {
-    public static boolean contains$default(java.lang.CharSequence, java.lang.CharSequence, boolean, int, java.lang.Object);
-}
+# AndroidX Test itself also calls the shared Kotlin runtime (for example LazyKt
+# in TestDirCalculator). Keep its API in the instrumented app, since the runner
+# is compiled separately and its callers are invisible to application R8.
+-keep class kotlin.** { *; }
