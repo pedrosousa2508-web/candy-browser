@@ -18,6 +18,7 @@ import androidx.lifecycle.lifecycleScope
 import dev.sk2andy.materialbrowser.R
 import dev.sk2andy.materialbrowser.data.passwords.BlackHolePasswordCsv
 import dev.sk2andy.materialbrowser.data.passwords.BlackHolePasswordCsvStore
+import dev.sk2andy.materialbrowser.data.passwords.PasswordCsvDocumentRules
 import dev.sk2andy.materialbrowser.data.passwords.PasswordCsvExportAuthorization
 import dev.sk2andy.materialbrowser.data.passwords.PasswordCsvPreview
 import java.io.FilterOutputStream
@@ -45,12 +46,20 @@ class PasswordCsvActivity : AppCompatActivity() {
     private val importPicker = registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri ->
         if (pendingPicker != Picker.Import) return@registerForActivityResult
         pendingPicker = null
-        if (uri == null) reset(R.string.csv_demo_cancelled) else readImport(uri, generation)
+        when {
+            uri == null -> reset(R.string.csv_demo_cancelled)
+            !PasswordCsvDocumentRules.isSafDocument(this, uri) -> reset(R.string.csv_demo_failed)
+            else -> readImport(uri, generation)
+        }
     }
     private val exportPicker = registerForActivityResult(ActivityResultContracts.CreateDocument("text/csv")) { uri ->
         if (pendingPicker != Picker.Export) return@registerForActivityResult
         pendingPicker = null
-        if (uri == null) reset(R.string.csv_demo_cancelled) else authenticateExport(uri, generation)
+        when {
+            uri == null -> reset(R.string.csv_demo_cancelled)
+            !PasswordCsvDocumentRules.isSafDocument(this, uri) -> reset(R.string.csv_demo_failed)
+            else -> authenticateExport(uri, generation)
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

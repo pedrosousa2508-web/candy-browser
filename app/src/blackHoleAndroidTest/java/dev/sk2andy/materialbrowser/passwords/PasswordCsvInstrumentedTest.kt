@@ -3,6 +3,7 @@ package dev.sk2andy.materialbrowser.passwords
 import android.content.ComponentName
 import android.content.Context
 import android.content.ContextWrapper
+import android.net.Uri
 import android.os.Build
 import android.os.SystemClock
 import android.provider.DocumentsContract
@@ -18,6 +19,7 @@ import dev.sk2andy.materialbrowser.R
 import dev.sk2andy.materialbrowser.data.AppDataArchiveRules
 import dev.sk2andy.materialbrowser.data.passwords.BlackHolePasswordCsv
 import dev.sk2andy.materialbrowser.data.passwords.BlackHolePasswordCsvStore
+import dev.sk2andy.materialbrowser.data.passwords.PasswordCsvDocumentRules
 import dev.sk2andy.materialbrowser.data.passwords.PasswordCsvExportAuthorization
 import dev.sk2andy.materialbrowser.data.passwords.PasswordImportResult
 import java.io.ByteArrayOutputStream
@@ -43,7 +45,9 @@ class PasswordCsvInstrumentedTest {
     @Before
     fun requireDisposableEmulator() {
         check(Build.HARDWARE in setOf("ranchu", "goldfish")) { "Disposable emulator required" }
-        check(!File(context.noBackupFilesDir, BlackHolePasswordCsvStore.FILE_NAME).exists()) {
+        check(listOf("", ".bak", ".new").none {
+            File(context.noBackupFilesDir, BlackHolePasswordCsvStore.FILE_NAME + it).exists()
+        }) {
             "Refuse to alter an existing prototype dataset"
         }
     }
@@ -60,6 +64,9 @@ class PasswordCsvInstrumentedTest {
 
     @Test
     fun encryptedStorePreservesDuplicatesAndFailsClosedOnCorruption() {
+        assertFalse(PasswordCsvDocumentRules.isSafDocument(context, Uri.fromFile(File(context.filesDir, "invented.csv"))))
+        assertFalse(PasswordCsvDocumentRules.isSafDocument(context, Uri.parse("https://example.org/invented.csv")))
+        assertFalse(PasswordCsvDocumentRules.isSafDocument(context, Uri.parse("content://invalid.example/raw/invented")))
         check(isolated.mkdirs())
         val isolatedContext = object : ContextWrapper(context) {
             override fun getNoBackupFilesDir(): File = isolated
@@ -102,7 +109,7 @@ class PasswordCsvInstrumentedTest {
         createdProductionFixture = true
         ActivityScenario.launch(PasswordCsvActivity::class.java).use {
             clickApp(R.id.csv_import)
-            clickText(context.getString(R.string.csv_demo_continue))
+            click(By.res("android", "button1"))
             chooseTestRoot()
             clickText("invented-input.csv")
             waitTextContains("Rows: 5")
@@ -127,6 +134,7 @@ class PasswordCsvInstrumentedTest {
             device.pressEnter()
             waitStatus("Exported 3")
             val exportedUri = DocumentsContract.buildDocumentUri(CsvTestDocumentsProvider.AUTHORITY, "export-2")
+            assertTrue(PasswordCsvDocumentRules.isSafDocument(context, exportedUri))
             val exported = context.contentResolver.openInputStream(exportedUri)!!.use(BlackHolePasswordCsv::parse)
             assertEquals(3, exported.entries.size)
             assertEquals(" fake,\"A\"  ", exported.entries[0].password)
@@ -155,7 +163,7 @@ class PasswordCsvInstrumentedTest {
 
     private fun chooseExportDestination() {
         clickApp(R.id.csv_export)
-        clickText(context.getString(R.string.csv_demo_continue))
+        click(By.res("android", "button1"))
         chooseTestRoot()
         // Android 35 DocumentsUI fragment_save.xml uses the framework button1 ID.
         click(By.res("android", "button1"))
@@ -181,6 +189,7 @@ class PasswordCsvInstrumentedTest {
     private fun clickText(text: String) = click(By.text(text))
     private fun click(selector: androidx.test.uiautomator.BySelector) {
         val control = device.wait(Until.findObject(selector), TIMEOUT)
+        if (control == null) logControlIds()
         assertNotNull("Expected test control", control)
         requireNotNull(control).click()
     }
@@ -190,6 +199,18 @@ class PasswordCsvInstrumentedTest {
 
     private fun waitStatus(text: String) = assertTrue("Expected transfer report",
         device.wait(Until.hasObject(By.res(context.resources.getResourceName(R.id.csv_status)).textContains(text)), TIMEOUT))
+
+    private fun logControlIds() {
+        // Test diagnostics only. Never collect node text, descriptions, screenshots or credential values.
+        var count = 0
+        fun visit(node: android.view.accessibility.AccessibilityNodeInfo?, depth: Int) {
+            if (node == null || depth > 12 || count++ >= 80) return
+            println("CSV control: id=${node.viewIdResourceName}, class=${node.className}, " +
+                "visible=${node.isVisibleToUser}, enabled=${node.isEnabled}, clickable=${node.isClickable}")
+            for (index in 0 until node.childCount) visit(node.getChild(index), depth + 1)
+        }
+        visit(instrumentation.uiAutomation.rootInActiveWindow, 0)
+    }
 
     private companion object {
         const val TIMEOUT = 15_000L

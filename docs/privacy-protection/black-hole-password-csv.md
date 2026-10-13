@@ -13,6 +13,7 @@ APK remained fast on the user's POCO; the new CSV recovery still needs its own p
 | Historical CPV1 encrypted storage | `data/passwords/BlackHolePasswordCsvStore.kt` |
 | One-use, 30-second export authorization | `data/passwords/PasswordCsvExportAuthorization.kt` |
 | Android Files and OS authentication | `src/blackHoleTest/.../passwords/PasswordCsvActivity.kt` |
+| SAF-only URI validation | `data/passwords/PasswordCsvDocumentRules.kt` |
 | Browser ZIP exclusion | `data/AppDataArchiveRules.kt` |
 | JVM tests | `src/test/.../data/passwords`, `PasswordCsvArchiveExclusionTest` |
 | Disposable-emulator tests and fake SAF provider | `src/blackHoleAndroidTest/.../passwords` |
@@ -25,6 +26,9 @@ The browser engine, navigation, nine launcher aliases, release R8 and test signi
 Storage is initialized lazily, and parsing/crypto/file I/O runs outside the UI thread.
 
 Import uses `OpenDocument`, a plaintext warning, a numerical preview and explicit confirmation.
+Both picker results must be registered SAF document URIs. File, web, resource and arbitrary
+content URIs are rejected before any read, authentication or write to prevent app-private
+plaintext destinations or an unintended source outside the document contract.
 The report counts rows, invalid rows, Android-only records, inserted entries, exact duplicates,
 different password versions and stored entries. A duplicate has the same literal URL, username
 and password; changing only the title is also a duplicate. Different passwords for the same
