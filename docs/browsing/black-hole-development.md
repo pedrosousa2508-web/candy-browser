@@ -79,6 +79,11 @@ report as readiness evidence.
 The instrumentation APK's reflective JUnit/framework classes are preserved with test-only
 ProGuard directives. Application minification/optimization remains enabled with the original
 application rules. Raw instrumentation output and logcat are retained for process-crash diagnosis.
+Run `38358157390` crashed before discovery because AndroidJUnitRunner could not resolve
+`androidx.tracing.Trace`, a shared dependency eliminated by application R8. The explicit
+`candy.androidTestBuildType=blackHoleTest` mode keeps that class and its entry points in the
+instrumented app only. R8 remains enabled; the downloadable ARM64 build does not load this
+instrumentation compatibility rule.
 
 The debug key is local to the machine/CI runner. APKs from different runners may not update an
 existing install signed by another key. Do not replace a production app or delete its data to test.

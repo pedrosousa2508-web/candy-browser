@@ -337,6 +337,11 @@ android {
             manifestPlaceholders["appLabel"] = "@string/app_name"
             buildConfigField("boolean", "BLACK_HOLE_BRANDING", "true")
             testProguardFiles("black-hole-test-proguard-rules.pro")
+            if (testBuildType == "blackHoleTest") {
+                // The runner uses this shared dependency after the app has been shrunk.
+                // Keep its runtime entry points only for the dedicated instrumented build.
+                proguardFile("black-hole-instrumented-app-proguard-rules.pro")
+            }
             buildConfigField("boolean", "ENABLE_GITHUB_UPDATES", "false")
             matchingFallbacks += listOf("release")
         }
