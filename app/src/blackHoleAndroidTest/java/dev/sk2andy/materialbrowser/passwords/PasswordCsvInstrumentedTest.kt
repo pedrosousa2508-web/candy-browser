@@ -114,7 +114,7 @@ class PasswordCsvInstrumentedTest {
             chooseExportDestination()
             waitDeviceCredential()
             device.pressBack()
-            if (!device.wait(Until.gone(By.res(Pattern.compile(".*:id/password_entry"))), 1_500)) {
+            if (!device.wait(Until.gone(PIN_ENTRY), 1_500)) {
                 device.pressBack() // Some PIN screens first dismiss the input keyboard.
             }
             waitStatus(context.getString(R.string.csv_demo_cancelled))
@@ -167,10 +167,10 @@ class PasswordCsvInstrumentedTest {
     }
 
     private fun waitDeviceCredential(): UiObject2 {
-        var pin = device.wait(Until.findObject(By.res(Pattern.compile(".*:id/password_entry"))), TIMEOUT)
+        var pin = device.wait(Until.findObject(PIN_ENTRY), TIMEOUT)
         if (pin == null) {
             click(By.text(Pattern.compile("(?i).*use (pin|screen lock|password).*")))
-            pin = device.wait(Until.findObject(By.res(Pattern.compile(".*:id/password_entry"))), TIMEOUT)
+            pin = device.wait(Until.findObject(PIN_ENTRY), TIMEOUT)
         }
         assertNotNull("Android device credential prompt must be shown", pin)
         return requireNotNull(pin)
@@ -192,5 +192,7 @@ class PasswordCsvInstrumentedTest {
 
     private companion object {
         const val TIMEOUT = 15_000L
+        // Android 35 BiometricPrompt embeds SystemUI's lockPassword; older fallback uses Settings.
+        val PIN_ENTRY = By.res(Pattern.compile(".*:id/(password_entry|lockPassword)"))
     }
 }
