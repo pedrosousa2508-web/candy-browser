@@ -76,7 +76,7 @@ class PasswordVaultActivity : AppCompatActivity() {
             }
         }
         lifecycleScope.launch {
-            lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+            lifecycle.repeatOnLifecycle(Lifecycle.State.RESUMED) {
                 while (true) {
                     delay(1_000)
                     if (unlocked && !PasswordVaultRules.active(authenticatedAt, lastInteraction, SystemClock.elapsedRealtime())) lock()
@@ -176,6 +176,11 @@ class PasswordVaultActivity : AppCompatActivity() {
         var editor: VaultCredential? = null
             set(value) { field = value; changeEditor = true }
         var isNew: Boolean? = null
+    }
+
+    override fun onPause() {
+        lock() // Also cover loss of foreground in multi-window mode.
+        super.onPause()
     }
 
     override fun onStop() {

@@ -12,7 +12,7 @@ Writes are serialized and atomic. Failed authentication, invalid format, oversiz
 
 ## Authentication and lifecycle
 
-Unlock, manual add, read/edit, save, deletion and full deletion require fresh OS confirmation. The list retains only metadata; password strings are returned only for an authenticated editor. Backgrounding clears list/editor state, including when Android opens its credential activity. Only a successful pending OS authentication can re-open the foreground session. Recreation never restores credentials. The timeout coroutine runs only while the activity is started. Absolute session lifetime and inactivity are bounded to 30 seconds; users must unlock again. `FLAG_SECURE` covers the activity and inherited Compose dialogs. Autofill is disabled on the view hierarchy. No sensitive input uses saved instance state or persistent URI grants.
+Unlock, manual add, read/edit, save, deletion and full deletion require fresh OS confirmation. The list retains only metadata; password strings are returned only for an authenticated editor. Pausing/backgrounding clears list/editor state, including when Android opens its credential activity. Only a successful pending OS authentication can re-open the foreground session. Recreation never restores credentials. The timeout coroutine runs only while the activity is resumed. Absolute session lifetime and inactivity are bounded to 30 seconds; users must unlock again. `FLAG_SECURE` covers the activity and inherited Compose dialogs. Autofill is disabled on the view hierarchy. No sensitive input uses saved instance state or persistent URI grants.
 
 ## Security limitations and review requirements
 
